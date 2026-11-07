@@ -24,7 +24,7 @@ RSpec.describe "Dashboard", type: :request do
     expect(body).to include('<div class="temp">9°</div>', "Overskyet", "Solcreme", "HELE DAGEN", "I MORGEN", "School trip", "Dinner at Mormor")
     expect(body).not_to include("Already over", "forældet:")
     expect(body.scan('class="hr"').size).to eq(13) # all-day row; 3 alerts are 14.4rem
-    expect(body.scan('class="pr cheap"').size).to eq(4)
+    expect(body.scan('class="pr cheap"').size).to eq(body.scan(/class="n">0,\d\d</).size) # below 1 kr
   end
 
   it "renders what it has when a source fails" do

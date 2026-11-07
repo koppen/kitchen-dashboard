@@ -31,12 +31,11 @@ RSpec.describe KitchenDashboard::Display::Timeline do
     expect(events[1].sub).to eq("til 18:02")
   end
 
-  it "highlights the cheapest 4 consecutive hours, nothing else" do
+  it "highlights hours below 1 kr/kWh, nothing else" do
     prices = timeline.prices
     expect(prices.size).to eq(13)
-    cheap = prices.each_index.select { prices[it].cheap }
-    expect(cheap.size).to eq(4)
-    expect(cheap.each_cons(2).all? { |a, b| b == a + 1 }).to be(true)
+    expect(prices.map(&:cheap)).to eq(prices.map { it.value.tr(",", ".").to_f < 1.0 })
+    expect(prices.map(&:cheap)).to include(true, false)
     expect(prices.first.value).to match(/\A\d+,\d\d\z/) # Danish decimal comma
     expect(prices.map(&:width).max).to be_within(1e-9).of(described_class::BAR_MAX)
     expect(prices.map { [it.width >= described_class::LABEL_MIN, it.inside] }).to all(satisfy { |fits, inside| fits == inside })

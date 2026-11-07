@@ -10,7 +10,7 @@ module KitchenDashboard
       ROW = 4.2        # rem per hour
       BAR_MAX = 9.0    # rem, length of the most expensive bar (the price column width)
       LABEL_MIN = 3.8  # rem, shortest bar that fits its price inside
-      CHEAP_H = 4      # length of the highlighted cheapest window (hours)
+      CHEAP_BELOW = 1.0 # kr/kWh: hours cheaper than this are highlighted
       HOUR = 3600
 
       Event = Data.define(:title, :sub, :who, :col, :cols, :top, :height, :now, :tentative)
@@ -97,13 +97,11 @@ module KitchenDashboard
         return [] if known.empty?
 
         max = known.max
-        best = (0..rows - CHEAP_H).select { v[it, CHEAP_H].none?(nil) }.min_by { v[it, CHEAP_H].sum }
-        v.each_with_index.map do |p, i|
+        v.map do |p|
           next unless p
 
           width = max.positive? ? [p, 0].max / max * BAR_MAX : 0
-          Price.new(value: format("%.2f", p).tr(".", ","), width:, cheap: !!best && (best...best + CHEAP_H).cover?(i),
-            inside: width >= LABEL_MIN)
+          Price.new(value: format("%.2f", p).tr(".", ","), width:, cheap: p < CHEAP_BELOW, inside: width >= LABEL_MIN)
         end
       end
     end
