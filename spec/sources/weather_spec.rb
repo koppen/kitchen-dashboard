@@ -13,7 +13,7 @@ RSpec.describe KitchenDashboard::Sources::Weather do
 
     expect(forecast["hourly"]).to include("precipitation" => [0, 1], "uv_index" => [2.5, 3.1])
     expect(http.calls).to all(start_with("https://api.open-meteo.com/v1/forecast?latitude=55.68&longitude=12.57"))
-    expect(http.calls.first).to include("models=dmi_seamless", "wind_speed_unit=ms", "hourly=precipitation%2Cwind_speed_10m")
+    expect(http.calls.first).to include("models=dmi_seamless", "wind_speed_unit=ms", "hourly=temperature_2m%2Cprecipitation%2Cwind_speed_10m")
     expect(http.calls.last).to include("hourly=uv_index")
     expect(http.calls.last).not_to include("models=")
   end

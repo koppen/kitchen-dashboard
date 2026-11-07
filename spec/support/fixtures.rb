@@ -19,6 +19,7 @@ module Fixtures
                     "wind_speed_10m" => 6.8, "wind_direction_10m" => 320},
       "hourly" => {
         "time" => times,
+        "temperature_2m" => arr.() { 8 + it % 4 },
         "precipitation" => arr.() { [i0 + 3, i0 + 4].include?(it) ? 0.9 : 0 },
         "uv_index" => arr.() { [i0, i0 + 1].include?(it) ? 5.2 : 0 },
         "wind_speed_10m" => arr.() { 5 }, "wind_gusts_10m" => arr.() { 8 },

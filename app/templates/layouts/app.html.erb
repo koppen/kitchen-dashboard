@@ -33,6 +33,14 @@
   .temp { font-size: 8.8rem; line-height: .9; font-weight: 700; letter-spacing: -.045em; }
   .cond { font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
   .feel { font-size: 1.5rem; color: #9AA3B2; margin-top: .2rem; }
+  /* next hours: as many columns as fit, the rest wrap onto a hidden second line */
+  .hours { flex: 1; min-width: 0; height: 8rem; display: flex; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; }
+  .hour { width: 4.2rem; height: 8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; color: #B9C0CC; }
+  .hour svg { width: 2.8rem; height: 2.8rem; }
+  .hour .h { font-size: 1.2rem; color: #9AA3B2; }
+  .hour .t { font-size: 1.7rem; font-weight: 700; color: #E8EAEE; }
+  .hour.clear_day, .hour.partly_day { color: #FFD166; }
+  .hour.rainy, .hour.snowy, .hour.thunder { color: #8FB4FF; }
   .alerts { display: flex; gap: .6rem; height: 4.4rem; flex: none; }
   .alert { flex: 1 1 0; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: .7rem; border-radius: 1.2rem; padding: 0 .9rem; }
   .alert svg { width: 2.2rem; height: 2.2rem; flex: none; }

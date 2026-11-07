@@ -26,6 +26,7 @@ RSpec.describe "Dashboard", type: :request do
     expect(body.scan(/class="ev[ "]/).size).to eq(3) # "Already over" and the all-day event aren't rows
     expect(body).to include('class="ev now"')
     expect(body.scan('class="slot"').size).to eq(24)
+    expect(body.scan('class="hour ').size).to eq(12)
   end
 
   it "renders what it has when a source fails" do

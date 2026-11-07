@@ -3,7 +3,7 @@
 
 module KitchenDashboard
   module Display
-    # Current conditions and alert cards from an Open-Meteo forecast.
+    # Current conditions, the next hours and alert cards from an Open-Meteo forecast.
     #
     # Open-Meteo hourly precipitation is the sum over the *preceding* hour, so rain during the
     # hour starting at time[i] is precipitation[i + 1]. Times are local to the forecast location.
@@ -12,16 +12,22 @@ module KitchenDashboard
       UV_LIMIT = 3                                             # sunscreen at UV index >= 3
       SAIL = {min_wind: 3, max_wind: 9, max_gust: 12, hours: 3} # m/s, next 3 daylight hours, dry
 
-      Alert = Data.define(:kind, :title, :sub)
+      HOURS = 12 # rendered; as many as fit the width are visible
 
-      attr_reader :temp, :condition, :feel, :alerts
+      Alert = Data.define(:kind, :title, :sub)
+      Hour = Data.define(:time, :icon, :temp)
+
+      attr_reader :temp, :condition, :feel, :hours, :alerts
 
       def initialize(forecast)
         c = forecast["current"]
         @temp = "#{c["temperature_2m"].round}°"
         @condition = self.class.condition(c["weather_code"])
         @feel = "Føles som #{c["apparent_temperature"].round}° · #{compass(c["wind_direction_10m"])} #{c["wind_speed_10m"].round} m/s"
-        @alerts = build_alerts(c, forecast["hourly"])
+        h = forecast["hourly"]
+        i0 = h["time"].index("#{c["time"][0, 13]}:00")
+        @hours = i0 ? build_hours(h, i0) : []
+        @alerts = i0 ? build_alerts(c, h, i0) : []
       end
 
       # WMO weather codes
@@ -40,10 +46,30 @@ module KitchenDashboard
         end
       end
 
+      # icon name (Views::Helpers::ICONS) for a WMO weather code
+      def self.icon(code, day)
+        case code
+        when 0 then day ? :clear_day : :clear_night
+        when 1..2 then day ? :partly_day : :partly_night
+        when 3 then :cloudy
+        when ..48 then :fog
+        when ..67, 80..82 then :rainy
+        when ..77, 85..86 then :snowy
+        else :thunder
+        end
+      end
+
       private
 
-      def build_alerts(c, h)
-        i0 = h["time"].index("#{c["time"][0, 13]}:00") or return []
+      # the next full hours after the current one
+      def build_hours(h, i0)
+        (i0 + 1..i0 + HOURS).filter_map do |i|
+          next unless h["time"][i]
+          Hour.new(h["time"][i][11, 2], self.class.icon(h["weather_code"][i], h["is_day"][i] == 1), "#{h["temperature_2m"][i].round}°")
+        end
+      end
+
+      def build_alerts(c, h, i0)
         at = ->(i) { h["time"][i][11, 5] }
         precip = ->(i) { h["precipitation"][i].to_f }
         alerts = []

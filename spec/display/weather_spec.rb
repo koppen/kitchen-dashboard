@@ -10,6 +10,16 @@ RSpec.describe KitchenDashboard::Display::Weather do
     expect([weather.temp, weather.condition, weather.feel]).to eq(["9°", "Overskyet", "Føles som 6° · NV 7 m/s"])
   end
 
+  it "shows the next hours" do
+    expect(weather.hours.size).to eq(12)
+    expect(weather.hours.first.to_h).to eq(time: "10", icon: :cloudy, temp: "10°")
+  end
+
+  it "picks icons by weather code and daylight" do
+    expect([[0, true], [0, false], [2, false], [61, true], [81, true], [85, true], [95, true]].map { described_class.icon(*it) })
+      .to eq([:clear_day, :clear_night, :partly_night, :rainy, :rainy, :snowy, :thunder])
+  end
+
   it "flags rain, sunscreen and sailing" do
     expect(weather.alerts.map(&:to_h)).to eq([
       {kind: :rain, title: "Regn fra 11:00", sub: "1,8 mm til 13:00"},

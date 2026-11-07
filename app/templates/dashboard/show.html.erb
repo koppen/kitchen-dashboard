@@ -3,6 +3,11 @@
     <% if weather %>
       <div class="temp"><%= weather.temp %></div>
       <div><div class="cond"><%= weather.condition %></div><div class="feel"><%= weather.feel %></div></div>
+      <div class="hours">
+        <% weather.hours.each do |h| %>
+          <div class="hour <%= h.icon %>"><div class="h"><%= h.time %></div><%= icon(h.icon) %><div class="t"><%= h.temp %></div></div>
+        <% end %>
+      </div>
     <% end %>
   </div>
 
