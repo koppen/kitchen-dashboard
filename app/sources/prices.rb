@@ -5,11 +5,11 @@ require "time"
 
 module KitchenDashboard
   module Sources
-    # Day-ahead electricity prices from Energi Data Service. The data has 15-minute resolution
-    # (since 2025-10-01); it is averaged to hours and converted to kr/kWh incl. extra + VAT.
+    # What a kWh costs, per hour: day-ahead spot price from Energi Data Service (15-minute resolution
+    # since 2025-10-01, averaged to hours) + supplier markup + tariffs and taxes, incl. VAT.
     # Returns [{t: unix seconds of the hour start, p: kr/kWh}].
     class Prices
-      include Deps["http", "cache"]
+      include Deps["http", "cache", "sources.tariffs"]
 
       TTL = 30 * 60
 
@@ -36,7 +36,10 @@ module KitchenDashboard
           utc = r["TimeUTC"].end_with?("Z") ? r["TimeUTC"] : "#{r["TimeUTC"]}Z"
           hours[Time.iso8601(utc).to_i / 3600 * 3600] << r["DayAheadPriceDKK"] / 1000.0 # DKK/MWh -> kr/kWh
         end
-        hours.map { |t, ps| {t:, p: (ps.sum / ps.size + Config::EXTRA.(Time.at(t))) * Config::VAT} }
+        hours.map do |t, ps|
+          time = Time.at(t)
+          {t:, p: (ps.sum / ps.size + Config::MARKUP.(time) + tariffs.at(time)) * Config::VAT}
+        end
       end
     end
   end
