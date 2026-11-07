@@ -1,1 +1,1 @@
-web: bundle exec hanami server --port 8080
+web: PORT=8080 bundle exec hanami server
