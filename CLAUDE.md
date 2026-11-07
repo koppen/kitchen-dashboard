@@ -4,7 +4,7 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 
 ## Layout (decided)
 
-- Dark, 480x800 portrait, scales to the viewport (everything in rem, `html { font-size: min(100vw/48, 100vh/80) }`).
+- Dark, designed for 480x800 portrait, scales to the viewport (everything in rem, `html { font-size: min(100vw/48, 100vh/80) }`). 80 rem tall; the width is fluid (at least 48 rem), so on screens wider than 3:5 the calendar column takes the extra width instead of leaving side margins.
 - UI text in Danish (decimal comma, Danish compass points).
 - No date or clock (the kitchen already has plenty).
 - Top: current temperature + condition. Alert cards appear only when relevant: rain (rain in the next 4 h), sunscreen (UV >= 3), good sailing. Nothing shown when nothing is worth flagging.
