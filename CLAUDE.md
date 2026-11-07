@@ -25,6 +25,7 @@ Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the
   - `tariffs.rb`: per-kWh tariffs from EDS `DatahubPricelist` (grid company time-of-day tariff, Energinet transmission + system tariff, elafgift), selected by `TARIFFS`. Cached 24 h.
 - `app/display/`: plain Ruby presentation logic. `weather.rb` (condition text, rain/sunscreen/sailing alerts and their thresholds), `timeline.rb` (hour rows, event columns, cheapest/expensive price bars and their constants), `layout.rb` (timeline height from the fixed 48x80 rem canvas: the number of hour rows is computed server-side, so the heights there must match the CSS).
 - `app/views/dashboard/show.rb` + `app/templates/dashboard/show.html.erb`: the page. CSS and the small client script are in `app/templates/layouts/app.html.erb`.
+- Installable web app (no service worker): `public/manifest.webmanifest` (`display: fullscreen`, portrait) and `public/icons/` (`icon.svg` is the source; PNGs rendered from it with headless Chrome + `sips`), served by `Rack::Static` (config/app.rb). iOS meta tags in the layout; the canvas is shrunk by `env(safe-area-inset-*)` so it clears the translucent iOS status bar. Android only offers install/fullscreen, and browsers only allow the screen wake lock, on a secure origin (HTTPS or localhost); plain `http://<lan-ip>` won't do it (workaround on the tablet: `chrome://flags` → "Insecure origins treated as secure"). iOS "Add to Home Screen" works over HTTP.
 - `app/actions/api/`: `/api/events`, `/api/weather`, `/api/prices` serve the sources as JSON (502 if the upstream fails and nothing is cached). Useful for debugging.
 - `spec/`: `bundle exec rspec`. Sources are tested with a fake HTTP client; display logic with fixtures; request specs stub the sources in the container.
 - `legacy-node/`: the previous Node implementation, kept for reference.
@@ -56,7 +57,7 @@ Assumptions still to verify against live data:
 
 1. Tune thresholds (rain, UV, sailing wind/gust limits) against real conditions.
 2. Copy `google-token.json` to the home server along with the app.
-3. Run it as a service on the home server (systemd running puma) and point the tablet's browser at it in fullscreen/kiosk mode.
+3. Run it as a service on the home server (systemd running puma), ideally behind HTTPS (e.g. Caddy or Tailscale serve) so Android install and the wake lock work, and install it on the tablet from the browser.
 4. Later: e-ink/TRMNL version. Needs a 1-bit variant (no grays; solid/outlined/hatched bars; people told apart by shape). Rendering is already server-side, so this is mostly another template/route (TRMNL fetches an image or markup). A 1-bit design exists on the canvas (`Timeline480.dc.html`, `Eink.dc.html`).
 
 ## Preferences

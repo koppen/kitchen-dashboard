@@ -2,14 +2,27 @@
 <html lang="da">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kitchen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dashboard</title>
+<!-- Installable without browser UI: fullscreen on Android, standalone on iOS ("Add to Home Screen") -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#12151A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* Everything is in rem. The layout is 48 x 80 rem, scaled to fit the screen (1rem = 10px at 480x800).
-     Heights that decide the number of timeline rows are mirrored in app/display/layout.rb. */
-  html { font-size: min(100vw / 48, 100vh / 80); }
-  body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: none;
+     Heights that decide the number of timeline rows are mirrored in app/display/layout.rb.
+     Safe-area insets keep it clear of the iOS status bar / notches when installed (0 elsewhere). */
+  html { font-size: min((100vw - env(safe-area-inset-left) - env(safe-area-inset-right)) / 48,
+                        (100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 80); }
+  body { margin: 0; height: 100vh; box-sizing: border-box; display: flex;
+         padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); align-items: center; justify-content: center; overflow: hidden; cursor: none;
+         overscroll-behavior: none; -webkit-user-select: none; user-select: none;
          background: #12151A; color: #E8EAEE; font-family: 'Space Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   #app { position: relative; box-sizing: border-box; flex: none; width: 48rem; height: 80rem; padding: 1.4rem;
          display: flex; flex-direction: column; gap: 1rem; }

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#12151A"/>
+  <!-- price bars, right-aligned to a shared edge; kept inside the maskable safe zone (r = 205) -->
+  <path d="M372 150v52H208a12 12 0 0 1-12-12v-28a12 12 0 0 1 12-12z" fill="#4A5466"/>
+  <path d="M372 230v52H152a12 12 0 0 1-12-12v-28a12 12 0 0 1 12-12z" fill="#F2A07B"/>
+  <path d="M372 310v52H264a12 12 0 0 1-12-12v-28a12 12 0 0 1 12-12z" fill="#5ED1B1"/>
+</svg>

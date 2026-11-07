@@ -35,6 +35,20 @@ RSpec.describe "Dashboard", type: :request do
     expect(last_response.body.scan('class="hr"').size).to eq(13)
   end
 
+  it "is installable as a web app" do
+    get "/"
+    expect(last_response.body).to include('<link rel="manifest" href="/manifest.webmanifest">', 'name="apple-mobile-web-app-capable"')
+
+    get "/manifest.webmanifest"
+    expect(last_response.headers["content-type"]).to eq("application/manifest+json")
+    manifest = JSON.parse(last_response.body)
+    expect(manifest).to include("display" => "fullscreen", "start_url" => "/")
+    manifest["icons"].each do |icon|
+      get icon["src"]
+      expect(last_response).to be_ok
+    end
+  end
+
   it "serves the sources as JSON" do
     get "/api/prices"
     expect(last_response.headers["content-type"]).to start_with("application/json")
