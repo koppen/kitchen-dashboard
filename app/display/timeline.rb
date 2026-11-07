@@ -78,7 +78,7 @@ module KitchenDashboard
         list.map do |x|
           e = x[:e]
           height = [(x[:en] - x[:s]).fdiv(HOUR) * ROW - 0.4, 3.4].max
-          sub = e[:location].empty? ? "until #{Time.at(x[:e0]).strftime("%H:%M")}" : e[:location]
+          sub = e[:location].empty? ? "til #{Time.at(x[:e0]).strftime("%H:%M")}" : e[:location]
           Event.new(
             title: e[:title], sub: (sub if height >= 5.6), who: e[:who], col: x[:col], cols: x[:cols],
             top: (x[:s] - win_start).fdiv(HOUR) * ROW + 0.2, height:, now: x[:now]
@@ -100,7 +100,7 @@ module KitchenDashboard
 
           kind = :dear if max - min >= SPREAD_MIN && p >= min + 0.7 * (max - min)
           kind = :cheap if best && i >= best && i < best + CHEAP_H
-          Price.new(value: format("%.2f", p), width: max.positive? ? [p, 0].max / max * BAR_MAX : 0, kind:)
+          Price.new(value: format("%.2f", p).tr(".", ","), width: max.positive? ? [p, 0].max / max * BAR_MAX : 0, kind:)
         end
       end
     end

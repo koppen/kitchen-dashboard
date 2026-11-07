@@ -31,7 +31,7 @@ module KitchenDashboard
 
         # depends on the others so it is evaluated after the sources were called
         expose :stale do |weather, timeline|
-          {events: events_source, weather: weather_source, prices: prices_source}.select { |_, s| s.stale? }.keys
+          {"kalender" => events_source, "vejr" => weather_source, "elpriser" => prices_source}.select { |_, s| s.stale? }.keys
         end
 
         private

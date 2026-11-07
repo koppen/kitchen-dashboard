@@ -28,7 +28,7 @@ RSpec.describe KitchenDashboard::Display::Timeline do
     football = events.first
     expect(football.top).to be_within(1e-9).of(0.2) # clipped to the window start
     expect(football.sub).to be_nil                  # too short for a second line
-    expect(events[1].sub).to eq("until 18:02")
+    expect(events[1].sub).to eq("til 18:02")
   end
 
   it "colours the cheapest 4 consecutive hours and the expensive ones" do
@@ -38,6 +38,7 @@ RSpec.describe KitchenDashboard::Display::Timeline do
     expect(cheap.size).to eq(4)
     expect(cheap.each_cons(2).all? { |a, b| b == a + 1 }).to be(true)
     expect(prices.map(&:kind)).to include(:dear)
+    expect(prices.first.value).to match(/\A\d+,\d\d\z/) # Danish decimal comma
     expect(prices.map(&:width).max).to be_within(1e-9).of(described_class::BAR_MAX)
   end
 

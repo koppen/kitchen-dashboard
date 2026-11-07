@@ -20,23 +20,23 @@ module KitchenDashboard
         c = forecast["current"]
         @temp = "#{c["temperature_2m"].round}°"
         @condition = self.class.condition(c["weather_code"])
-        @feel = "Feels #{c["apparent_temperature"].round}° · #{compass(c["wind_direction_10m"])} #{c["wind_speed_10m"].round} m/s"
+        @feel = "Føles som #{c["apparent_temperature"].round}° · #{compass(c["wind_direction_10m"])} #{c["wind_speed_10m"].round} m/s"
         @alerts = build_alerts(c, forecast["hourly"])
       end
 
       # WMO weather codes
       def self.condition(code)
         case code
-        when 0 then "Clear"
-        when 1..2 then "Partly cloudy"
-        when 3 then "Overcast"
-        when ..48 then "Fog"
-        when ..57 then "Drizzle"
-        when ..67 then "Rain"
-        when ..77 then "Snow"
-        when ..82 then "Showers"
-        when ..86 then "Snow showers"
-        else "Thunderstorm"
+        when 0 then "Klart"
+        when 1..2 then "Delvis skyet"
+        when 3 then "Overskyet"
+        when ..48 then "Tåge"
+        when ..57 then "Støvregn"
+        when ..67 then "Regn"
+        when ..77 then "Sne"
+        when ..82 then "Byger"
+        when ..86 then "Snebyger"
+        else "Torden"
         end
       end
 
@@ -56,7 +56,7 @@ module KitchenDashboard
             mm += precip.(i0 + 1 + e)
             e += 1
           end
-          alerts << Alert.new(:rain, m.zero? ? "Rain now" : "Rain from #{at.(i0 + m)}", format("%.1f mm until %s", mm, at.(i0 + e)))
+          alerts << Alert.new(:rain, m.zero? ? "Regn nu" : "Regn fra #{at.(i0 + m)}", "#{decimal(mm, 1)} mm indtil #{at.(i0 + e)}")
         end
 
         uv = ->(i) { h["uv_index"][i].to_f }
@@ -67,8 +67,8 @@ module KitchenDashboard
             peak = [peak, uv.(i0 + e)].max
             e += 1
           end
-          sub = k.zero? ? "UV #{peak.round} until #{at.(i0 + e)}" : "UV #{peak.round} from #{at.(i0 + k)}"
-          alerts << Alert.new(:sun, "Sunscreen", sub)
+          sub = k.zero? ? "UV #{peak.round} indtil #{at.(i0 + e)}" : "UV #{peak.round} fra #{at.(i0 + k)}"
+          alerts << Alert.new(:sun, "Solcreme", sub)
         end
 
         window = ->(key) { h[key][i0, SAIL[:hours]] }
@@ -78,13 +78,15 @@ module KitchenDashboard
         wet = (1..SAIL[:hours]).sum { precip.(i0 + it) }
         if window.("is_day").all?(1) && window.("weather_code").all? { it < 95 } &&
             avg.between?(SAIL[:min_wind], SAIL[:max_wind]) && gust <= SAIL[:max_gust] && wet < 1
-          alerts << Alert.new(:sail, "Good sailing", "#{compass(c["wind_direction_10m"])} #{avg.round} m/s, gusts #{gust.round}")
+          alerts << Alert.new(:sail, "Godt sejlvejr", "#{compass(c["wind_direction_10m"])} #{avg.round} m/s, vindstød #{gust.round}")
         end
 
         alerts
       end
 
-      def compass(deg) = %w[N NE E SE S SW W NW][(deg / 45.0).round % 8]
+      def compass(deg) = %w[N NØ Ø SØ S SV V NV][(deg / 45.0).round % 8]
+
+      def decimal(x, digits) = format("%.#{digits}f", x).tr(".", ",")
     end
   end
 end

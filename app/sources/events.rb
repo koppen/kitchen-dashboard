@@ -47,7 +47,7 @@ module KitchenDashboard
               prev[:no].merge(no)
             else
               seen[key] = {
-                title: e["summary"] || "(no title)",
+                title: e["summary"] || "(uden titel)",
                 location: e["location"] || "",
                 start:,
                 end: e["end"]["dateTime"] || e["end"]["date"],

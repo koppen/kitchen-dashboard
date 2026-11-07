@@ -5,10 +5,11 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 ## Layout (decided)
 
 - Dark, 480x800 portrait, scales to the viewport (everything in rem, `html { font-size: min(100vw/48, 100vh/80) }`).
+- UI text in Danish (decimal comma, Danish compass points).
 - No date or clock (the kitchen already has plenty).
 - Top: current temperature + condition. Alert cards appear only when relevant: rain (rain in the next 4 h), sunscreen (UV >= 3), good sailing. Nothing shown when nothing is worth flagging.
 - All-day events: chips above the timeline.
-- Timeline: hour axis on the left, events in the middle (overlapping events split into columns, the event happening now is inverted), hourly price bars on the right. Bars are right-aligned from a solid axis, price printed left of each bar. Cheapest 4 consecutive hours = teal, expensive hours = orange, rest = slate. Dashed line marks midnight ("TOMORROW"). Number of hour rows adapts to the free height.
+- Timeline: hour axis on the left, events in the middle (overlapping events split into columns, the event happening now is inverted), hourly price bars on the right. Bars are right-aligned from a solid axis, price printed left of each bar. Cheapest 4 consecutive hours = teal, expensive hours = orange, rest = slate. Dashed line marks midnight ("I MORGEN"). Number of hour rows adapts to the free height.
 - Avatars are one size everywhere; each person has an initial + colour.
 - Visual reference: `design/Timeline480-display.dc.html` (a Design Component page from claude.ai, not runnable here). Canvas with all explored directions: https://claude.ai/artifact/AzyGXCBkXWCwtzTjggWRYv
 

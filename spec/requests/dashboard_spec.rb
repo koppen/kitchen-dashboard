@@ -21,8 +21,8 @@ RSpec.describe "Dashboard", type: :request do
     get "/"
     expect(last_response).to be_ok
     body = last_response.body
-    expect(body).to include('<div class="temp">9°</div>', "Overcast", "Sunscreen", "School trip", "Dinner at Mormor")
-    expect(body).not_to include("Already over", "stale:")
+    expect(body).to include('<div class="temp">9°</div>', "Overskyet", "Solcreme", "HELE DAGEN", "I MORGEN", "School trip", "Dinner at Mormor")
+    expect(body).not_to include("Already over", "forældet:")
     expect(body.scan('class="hr"').size).to eq(13) # all-day row; 3 alerts are 14.4rem
     expect(body.scan('class="pr cheap"').size).to eq(4)
   end
@@ -31,7 +31,7 @@ RSpec.describe "Dashboard", type: :request do
     container.stub("sources.weather", double(call: nil, stale?: true).tap { allow(it).to receive(:call).and_raise("down") })
     get "/"
     expect(last_response).to be_ok
-    expect(last_response.body).to include("stale: weather", "Dinner at Mormor")
+    expect(last_response.body).to include("forældet: vejr", "Dinner at Mormor")
     expect(last_response.body.scan('class="hr"').size).to eq(13)
   end
 
