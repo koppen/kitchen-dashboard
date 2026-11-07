@@ -13,6 +13,11 @@ module KitchenDashboard
     BOOT_ID = Time.now.to_i.to_s
 
     Rack::Mime::MIME_TYPES[".webmanifest"] = "application/manifest+json"
-    config.middleware.use Rack::Static, urls: ["/manifest.webmanifest", "/icons"], root: "public"
+    config.middleware.use Rack::Static, urls: ["/app.js", "/manifest.webmanifest", "/icons"], root: "public"
+
+    # Hanami's default CSP blocks the manifest and Google Fonts; the client script is in public/app.js
+    # because inline scripts are blocked too.
+    config.actions.content_security_policy[:manifest_src] = "'self'"
+    config.actions.content_security_policy[:font_src] = "'self' https://fonts.gstatic.com"
   end
 end

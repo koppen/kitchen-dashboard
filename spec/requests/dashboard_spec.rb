@@ -40,6 +40,17 @@ RSpec.describe "Dashboard", type: :request do
     expect(last_response.body).to include(%(<meta name="boot-id" content="#{KitchenDashboard::App::BOOT_ID}">))
   end
 
+  it "keeps the client script out of the page, where the CSP would block it" do
+    get "/"
+    expect(last_response.body).not_to match(/<script>/)
+    expect(last_response.body).to include(%(<script src="/app.js?v=#{KitchenDashboard::App::BOOT_ID}"></script>))
+    expect(last_response.headers["content-security-policy"]).to include("script-src 'self'", "manifest-src 'self'", "font-src 'self' https://fonts.gstatic.com")
+
+    get "/app.js"
+    expect(last_response).to be_ok
+    expect(last_response.body).to include("setInterval(refresh, 60e3)")
+  end
+
   it "is installable as a web app" do
     get "/"
     expect(last_response.body).to include('<link rel="manifest" href="/manifest.webmanifest">', 'name="apple-mobile-web-app-capable"')
