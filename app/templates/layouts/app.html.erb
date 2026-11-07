@@ -97,8 +97,9 @@
 <script>
   // Re-fetch the page every minute and swap #app in place; on failure keep showing the last page.
   // After a server restart (new boot-id) reload fully, so CSS/script changes arrive too.
+  // Also refresh right away when the page becomes visible (timers are paused while the screen is off).
   let okAt = Date.now();
-  setInterval(async () => {
+  async function refresh() {
     try {
       const r = await fetch(location.href, { cache: 'no-store' });
       if (!r.ok) throw new Error(r.status);
@@ -110,10 +111,13 @@
     } catch (e) {
       if (Date.now() - okAt > 3 * 60e3) document.querySelector('.stale').textContent = 'offline';
     }
-  }, 60e3);
+  }
+  setInterval(refresh, 60e3);
 
   const wake = () => navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {});
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && wake());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') { wake(); refresh(); }
+  });
   wake();
 </script>
 </body>
