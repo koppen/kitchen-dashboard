@@ -42,7 +42,7 @@
     <div class="prices" style="height:<%= rem(timeline.height) %>">
       <% timeline.prices.each do |p| %>
         <% if p %>
-          <div class="pr <%= p.kind %>">
+          <div class="pr<%= " cheap" if p.cheap %>">
             <% unless p.inside %><div class="n"><%= p.value %></div><% end %>
             <div class="bar" style="width:<%= rem(p.width) %>"><% if p.inside %><div class="n"><%= p.value %></div><% end %></div>
           </div>
