@@ -23,7 +23,7 @@
     </div>
   <% end %>
 
-  <div class="heads"><div class="h"></div><div class="c">KALENDER</div><div class="p">KR/KWH</div></div>
+  <div class="heads"><div class="h"></div><div class="c">KALENDER</div></div>
 
   <div id="tl" style="height:<%= rem(timeline.height) %>">
     <div class="hours"><% timeline.hours.each do |h| %><div class="hr"><%= h %></div><% end %></div>
@@ -39,18 +39,23 @@
         </div>
       <% end %>
     </div>
-    <div class="prices" style="height:<%= rem(timeline.height) %>">
-      <% timeline.prices.each do |p| %>
-        <% if p %>
-          <div class="pr<%= " cheap" if p.cheap %>">
-            <% unless p.inside %><div class="n"><%= p.value %></div><% end %>
-            <div class="bar" style="width:<%= rem(p.width) %>"><% if p.inside %><div class="n"><%= p.value %></div><% end %></div>
-          </div>
+  </div>
+
+  <div class="el">
+    <div class="elh"><div class="lbl">STRØMPRIS</div><% if prices.current %><div class="now"><b><%= prices.current %></b> kr/kWh nu</div><% end %></div>
+    <div class="chart">
+      <% prices.lines.each do |l| %>
+        <div class="line<%= " good" if l[:good] %>" style="bottom:<%= (l[:bottom] * 100).round(2) %>%"><span><%= l[:value] %></span></div>
+      <% end %>
+      <% prices.bars.each do |b| %>
+        <% if b %>
+          <div class="slot"><div class="bar<%= " cheap" if b.cheap %><%= " now" if b.now %><%= " clipped" if b.clipped %>" style="height:<%= (b.height * 100).round(2) %>%"></div></div>
         <% else %>
-          <div class="pr"></div>
+          <div class="slot"></div>
         <% end %>
       <% end %>
     </div>
+    <div class="ticks"><% prices.labels.each do |l| %><div><%= l %></div><% end %></div>
   </div>
 
   <div class="stale"><%= "forældet: #{stale.join(", ")}" if stale.any? %></div>

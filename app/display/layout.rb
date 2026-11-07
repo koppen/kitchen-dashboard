@@ -12,9 +12,10 @@ module KitchenDashboard
       ALERTS = 4.4   # one row of alert tiles, only when there are any
       ALL_DAY = 3.6
       HEADS = 1.2
+      PRICES = 14.0  # price chart along the bottom
 
       def self.timeline_height(alerts:, all_day:)
-        height = INNER - WX - GAP - HEADS - GAP
+        height = INNER - WX - GAP - HEADS - GAP - PRICES - GAP
         height -= ALERTS + GAP if alerts.positive?
         height -= ALL_DAY + GAP if all_day
         height

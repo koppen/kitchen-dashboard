@@ -5,16 +5,12 @@ require "time"
 
 module KitchenDashboard
   module Display
-    # Hour rows from the current hour, positioned events, and price bars, on one hour axis.
+    # Hour rows from the current hour and the events positioned on them.
     class Timeline
-      ROW = 4.2        # rem per hour
-      BAR_MAX = 9.0    # rem, length of the most expensive bar (the price column width)
-      LABEL_MIN = 3.8  # rem, shortest bar that fits its price inside
-      CHEAP_BELOW = 1.0 # kr/kWh: hours cheaper than this are highlighted
+      ROW = 4.2 # rem per hour
       HOUR = 3600
 
       Event = Data.define(:title, :sub, :who, :col, :cols, :top, :height, :now, :tentative)
-      Price = Data.define(:value, :width, :cheap, :inside)
 
       attr_reader :rows, :start
 
@@ -26,12 +22,11 @@ module KitchenDashboard
         events.select { it[:all_day] && it[:start] <= today && today < it[:end] }.first(3)
       end
 
-      def initialize(now:, height:, events:, prices:)
+      def initialize(now:, height:, events:)
         @now = now
         @rows = [1, (height / ROW).floor].max
         @start = Time.at(now.to_i / HOUR * HOUR) # Danish offsets are whole hours
         @events = events
-        @prices = prices
       end
 
       def height = rows * ROW
@@ -86,22 +81,6 @@ module KitchenDashboard
             title: e[:title], sub: (sub if height >= 5.6), who: e[:who], col: x[:col], cols: x[:cols],
             top: (x[:s] - win_start).fdiv(HOUR) * ROW + 0.2, height:, now: x[:now], tentative: self.class.tentative?(e)
           )
-        end
-      end
-
-      # One entry per row, nil where the price is unknown.
-      def prices
-        by_hour = @prices.to_h { [it[:t], it[:p]] }
-        v = Array.new(rows) { by_hour[start.to_i + it * HOUR] }
-        known = v.compact
-        return [] if known.empty?
-
-        max = known.max
-        v.map do |p|
-          next unless p
-
-          width = max.positive? ? [p, 0].max / max * BAR_MAX : 0
-          Price.new(value: format("%.2f", p).tr(".", ","), width:, cheap: p < CHEAP_BELOW, inside: width >= LABEL_MIN)
         end
       end
     end
