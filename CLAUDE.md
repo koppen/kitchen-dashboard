@@ -44,7 +44,7 @@ Run: `bundle exec puma -C config/puma.rb` (`PORT`/`HOST` env, default 0.0.0.0:80
 
 - Open-Meteo and Energi Data Service verified live (2026-11-07). EDS `start`/`end` are read as Danish local time (first hour returned is local midnight) and `TimeUTC` has no trailing Z.
 - Google Calendar verified live (2026-11-07) via OAuth (consent screen published "In production", unverified; branding filled in only because publishing requires it).
-- On macOS with mise's Ruby, `/etc/ssl/cert.pem` lacks GlobalSign Root R46, so TLS to EDS fails locally. Workaround: `security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain > roots.pem` and run with `SSL_CERT_FILE=roots.pem`. A Linux server with current `ca-certificates` should not need this.
+- On macOS, mise's Ruby has OpenSSL compiled in and reads macOS's `/etc/ssl/cert.pem`, which lacks GlobalSign Root R46, so TLS to EDS fails locally (upgrading MacPorts `curl-ca-bundle` alone doesn't help). Fix: `SSL_CERT_FILE=/opt/local/share/curl/curl-ca-bundle.crt` (MacPorts' bundle has R46), in `~/.zshrc` or `.env.local`. A Linux server with current `ca-certificates` should not need this.
 
 Assumptions still to verify against live data:
 - Open-Meteo hourly `precipitation` is the sum over the preceding hour (rain during the hour starting at `time[i]` is `precipitation[i+1]`).
