@@ -5,13 +5,24 @@ require "tmpdir"
 RSpec.describe KitchenDashboard::Sources::Events do
   subject(:source) { described_class.new(http:, cache: KitchenDashboard::Cache.new, settings:) }
 
-  let(:rsa) { OpenSSL::PKey::RSA.generate(2048) }
-  let(:key_file) do
-    File.join(Dir.mktmpdir, "sa.json").tap do |path|
-      File.write(path, JSON.generate(client_email: "sa@x.iam.gserviceaccount.com", private_key: rsa.private_to_pem))
+  let(:token_file) do
+    File.join(Dir.mktmpdir, "google-token.json").tap do |path|
+      File.write(path, JSON.generate(client_id: "cid", client_secret: "secret", refresh_token: "refresh"))
     end
   end
-  let(:settings) { double(google_key_file: key_file) }
+  let(:settings) { double(google_token_file: token_file) }
+
+  before do
+    stub_const("KitchenDashboard::Config::PEOPLE", {
+      "J" => {color: "#7FA4FF", emails: ["jakob@example.com"]},
+      "M" => {color: "#FF9B63", emails: ["mette@example.com"]}
+    })
+    stub_const("KitchenDashboard::Config::CALENDARS", [
+      {id: "jakob@example.com", who: %w[J]},
+      {id: "mette@example.com", who: %w[M]},
+      {id: "family@group.calendar.google.com", who: []}
+    ])
+  end
 
   let(:day) { Date.today.to_time }
   let(:ymd) { Date.today.iso8601 }
@@ -42,11 +53,8 @@ RSpec.describe KitchenDashboard::Sources::Events do
     FakeHttp.new do |method, url, headers: {}, params: {}|
       case url
       when "https://oauth2.googleapis.com/token"
-        header, claims, sig = params[:assertion].split(".")
-        decode = ->(s) { (s + "=" * (-s.size % 4)).tr("-_", "+/").unpack1("m") }
-        raise "bad signature" unless rsa.public_key.verify("SHA256", decode.(sig), "#{header}.#{claims}")
-        expect(JSON.parse(decode.(claims))).to include("iss" => "sa@x.iam.gserviceaccount.com", "aud" => url)
-        {"access_token" => "tok", "expires_in" => 3600}
+        expect(params).to eq(client_id: "cid", client_secret: "secret", refresh_token: "refresh", grant_type: "refresh_token")
+        {"access_token" => "tok", "expires_in" => 3599}
       when %r{googleapis.com/calendar/v3/calendars/([^/]+)/events}
         raise "unauthorized" unless headers["authorization"] == "Bearer tok"
         {"items" => calendars.fetch(URI.decode_uri_component($1))}

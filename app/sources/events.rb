@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 
 require "json"
-require "openssl"
 require "time"
 
 module KitchenDashboard
   module Sources
-    # Today's events from Google Calendar, read with a service account. The same event seen on
-    # several calendars is merged; people are taken from the calendar and the attendee list.
+    # Today's events from Google Calendar, read as the signed-in user (OAuth refresh token from
+    # bin/google-auth). The same event seen on several calendars is merged; people are taken from
+    # the calendar and the attendee list.
     class Events
       include Deps["http", "cache", "settings"]
 
       TTL = 5 * 60
       TOKEN_URL = "https://oauth2.googleapis.com/token"
-      SCOPE = "https://www.googleapis.com/auth/calendar.readonly"
 
       def call = cache.fetch(:events, TTL) { fetch }
 
@@ -32,7 +31,7 @@ module KitchenDashboard
           items.each do |e|
             next if e["status"] == "cancelled"
 
-            yes = Set.new(cal[:who].chars)
+            yes = Set.new(cal[:who])
             no = Set.new
             (e["attendees"] || []).each do |a|
               p = Config::PEOPLE.find { |_, person| person[:emails].include?(a["email"]) }&.first
@@ -80,20 +79,14 @@ module KitchenDashboard
         http.get_json(url, "authorization" => bearer)["items"] || []
       end
 
-      # Tokens are valid for an hour.
+      # Access tokens are valid for an hour.
       def token
         cache.fetch(:google_token, 50 * 60) do
-          key = JSON.parse(File.read(settings.google_key_file))
-          now = Time.now.to_i
-          claims = {iss: key["client_email"], scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600}
-          unsigned = "#{b64(JSON.generate(alg: "RS256", typ: "JWT"))}.#{b64(JSON.generate(claims))}"
-          sig = OpenSSL::PKey::RSA.new(key["private_key"]).sign("SHA256", unsigned)
-          http.post_form(TOKEN_URL, grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-            assertion: "#{unsigned}.#{b64(sig)}")["access_token"]
+          creds = JSON.parse(File.read(settings.google_token_file))
+          http.post_form(TOKEN_URL, client_id: creds["client_id"], client_secret: creds["client_secret"],
+            refresh_token: creds["refresh_token"], grant_type: "refresh_token")["access_token"]
         end
       end
-
-      def b64(s) = [s].pack("m0").tr("+/", "-_").delete("=")
     end
   end
 end

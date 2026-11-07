@@ -1,4 +1,5 @@
 .env*.local
 log/*
 spec/examples.txt
-service-account.json
+google-token.json
+client_secret*.json

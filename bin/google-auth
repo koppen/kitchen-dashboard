@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# One-time Google sign-in for the calendar. Run it on a machine with a browser:
+#
+#   bin/google-auth client_secret.json [google-token.json]
+#
+# client_secret.json is an OAuth client of type "Desktop app" from Google Cloud Console.
+# Writes the refresh token the server uses (GOOGLE_TOKEN_FILE, default ./google-token.json).
+
+require "digest"
+require "json"
+require "net/http"
+require "securerandom"
+require "socket"
+require "uri"
+
+client_file = ARGV[0] or abort "usage: bin/google-auth client_secret.json [google-token.json]"
+token_file = ARGV[1] || "google-token.json"
+client = JSON.parse(File.read(client_file)).values.first # {"installed": {...}}
+client_id, client_secret = client.values_at("client_id", "client_secret")
+b64url = ->(s) { [s].pack("m0").tr("+/", "-_").delete("=") }
+
+server = TCPServer.new("127.0.0.1", 0)
+redirect_uri = "http://127.0.0.1:#{server.addr[1]}"
+verifier = b64url.(SecureRandom.random_bytes(32))
+state = SecureRandom.hex(16)
+url = "https://accounts.google.com/o/oauth2/v2/auth?" + URI.encode_www_form(
+  client_id:, redirect_uri:, response_type: "code",
+  scope: "https://www.googleapis.com/auth/calendar.readonly",
+  access_type: "offline", prompt: "consent", state:,
+  code_challenge: b64url.(Digest::SHA256.digest(verifier)), code_challenge_method: "S256"
+)
+puts "Sign in here (opening the browser):\n\n#{url}\n\n"
+system("open", url) if RUBY_PLATFORM.include?("darwin")
+
+# Google redirects the browser to the local server with ?code=... (or ?error=...).
+params = loop do
+  conn = server.accept
+  q = URI.decode_www_form(URI(conn.gets.to_s.split[1].to_s).query.to_s).to_h
+  next conn.close unless q["code"] || q["error"] # e.g. /favicon.ico
+
+  q["error"] ||= "state mismatch" unless q["state"] == state
+  conn.print "HTTP/1.1 200 OK\r\ncontent-type: text/plain; charset=utf-8\r\nconnection: close\r\n\r\n",
+    q["error"] ? "Sign-in failed: #{q["error"]}" : "Signed in. You can close this tab."
+  conn.close
+  break q
+end
+abort "Sign-in failed: #{params["error"]}" if params["error"]
+
+res = Net::HTTP.post_form(URI("https://oauth2.googleapis.com/token"),
+  code: params["code"], client_id:, client_secret:, redirect_uri:,
+  grant_type: "authorization_code", code_verifier: verifier)
+refresh_token = JSON.parse(res.body)["refresh_token"]
+abort "Token exchange failed: #{res.body}" unless res.is_a?(Net::HTTPSuccess) && refresh_token
+
+File.write(token_file, JSON.pretty_generate(client_id:, client_secret:, refresh_token:) + "\n", perm: 0o600)
+puts "Wrote #{token_file}"
