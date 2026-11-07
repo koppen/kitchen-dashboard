@@ -18,7 +18,7 @@
     <div class="allday">
       <div class="lbl">HELE DAGEN</div>
       <% all_day.each do |e| %>
-        <div class="chip"><% e[:who].each do |p| %><%= avatar(p) %><% end %><b><%= e[:title] %></b></div>
+        <div class="chip<%= " tentative" if tentative?(e) %>"><% e[:who].each do |p| %><%= avatar(p) %><% end %><b><%= e[:title] %></b></div>
       <% end %>
     </div>
   <% end %>
@@ -32,7 +32,7 @@
         <div class="mid" style="top:<%= rem(mid) %>"></div><div class="midl" style="top:<%= rem(mid) %>">I MORGEN</div>
       <% end %>
       <% timeline.events.each do |e| %>
-        <div class="ev <%= e.cols == 1 ? "wide" : "narrow" %><%= " now" if e.now %>"
+        <div class="ev <%= e.cols == 1 ? "wide" : "narrow" %><%= " now" if e.now %><%= " tentative" if e.tentative %>"
              style="left:<%= (e.col * 100.0 / e.cols).round(2) %>%;width:calc(<%= (100.0 / e.cols).round(2) %>% - .4rem);top:<%= rem(e.top) %>;height:<%= rem(e.height) %>">
           <div class="txt"><div class="t"><%= e.title %></div><% if e.sub %><div class="s"><%= e.sub %></div><% end %></div>
           <div class="avs"><% e.who.each do |p| %><%= avatar(p) %><% end %></div>

@@ -17,6 +17,8 @@ module KitchenDashboard
       def rem(x) = "#{x.round(2)}rem"
 
       def boot_id = App::BOOT_ID
+
+      def tentative?(event) = Display::Timeline.tentative?(event)
     end
   end
 end

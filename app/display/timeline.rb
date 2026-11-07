@@ -14,10 +14,13 @@ module KitchenDashboard
       SPREAD_MIN = 0.3 # kr/kWh: below this spread nothing is flagged as expensive
       HOUR = 3600
 
-      Event = Data.define(:title, :sub, :who, :col, :cols, :top, :height, :now)
+      Event = Data.define(:title, :sub, :who, :col, :cols, :top, :height, :now, :tentative)
       Price = Data.define(:value, :width, :kind, :inside) # kind: :cheap, :dear or nil
 
       attr_reader :rows, :start
+
+      # The family marks tentative events by starting the title with "?".
+      def self.tentative?(event) = event[:title].start_with?("?")
 
       def self.all_day(events, now)
         today = now.to_date.iso8601
@@ -82,7 +85,7 @@ module KitchenDashboard
           sub = e[:location].empty? ? "til #{Time.at(x[:e0]).strftime("%H:%M")}" : e[:location]
           Event.new(
             title: e[:title], sub: (sub if height >= 5.6), who: e[:who], col: x[:col], cols: x[:cols],
-            top: (x[:s] - win_start).fdiv(HOUR) * ROW + 0.2, height:, now: x[:now]
+            top: (x[:s] - win_start).fdiv(HOUR) * ROW + 0.2, height:, now: x[:now], tentative: self.class.tentative?(e)
           )
         end
       end

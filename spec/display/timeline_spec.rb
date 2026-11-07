@@ -44,6 +44,12 @@ RSpec.describe KitchenDashboard::Display::Timeline do
     expect(prices.map(&:inside)).to include(true, false) # the mock has bars too short for their label
   end
 
+  it "marks events whose title starts with ? as tentative" do
+    events = [Fixtures.event(now, 1, 2, "? Pigeaften", "T"), Fixtures.event(now, 3, 4, "Hvad nu?", "J")]
+    timeline = described_class.new(now:, height: 50, events:, prices: [])
+    expect(timeline.events.map { [it.title, it.tentative] }).to eq([["? Pigeaften", true], ["Hvad nu?", false]])
+  end
+
   it "lists all-day events for today" do
     expect(described_class.all_day(Fixtures.events(now), now).map { it[:title] }).to eq(["School trip"])
   end

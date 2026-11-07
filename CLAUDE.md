@@ -9,6 +9,7 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 - No date or clock (the kitchen already has plenty).
 - Top: big current temperature, condition + "feels like" to its right. Below it, a horizontal row of alert tiles, only when relevant: rain (rain in the next 4 h), sunscreen (UV >= 3), good sailing (wind written "5 (8) m/s" = wind (gusts), as DMI does). No row when nothing is worth flagging; with all three, the tiles drop their icons to fit at 480 px.
 - All-day events: chips above the timeline.
+- Tentative events (the family's convention: title starts with "?"): dashed outline, no fill, dimmed text and avatars, both in the timeline and as all-day chips. The "?" stays in the title.
 - Timeline: hour axis on the left, events in the middle (overlapping events split into columns, the event happening now is inverted), hourly price bars on the right. Bars are right-aligned to a shared edge (no axis line; the flat bar ends form it), price printed inside the bar at its right end (left of the bar when the bar is too short to hold it). Cheapest 4 consecutive hours = teal, expensive hours = orange, rest = slate. Dashed line marks midnight ("I MORGEN"). Number of hour rows adapts to the free height.
 - Avatars are one size everywhere; each person has an initial + colour.
 - Visual reference: `design/Timeline480-display.dc.html` (a Design Component page from claude.ai, not runnable here). Canvas with all explored directions: https://claude.ai/artifact/AzyGXCBkXWCwtzTjggWRYv

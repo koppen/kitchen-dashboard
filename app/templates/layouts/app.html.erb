@@ -73,6 +73,11 @@
   .ev .avs { display: flex; flex: none; }
   .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
   .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
+  /* tentative ("?" title): outline instead of fill, dimmed */
+  .ev.tentative, .chip.tentative { background: none; border: .2rem dashed #4A5466; color: #9AA3B2; }
+  .ev.tentative .av { border-color: #12151A; }
+  .ev.tentative .av, .chip.tentative .av { opacity: .55; }
+  .ev.tentative.now { border-color: #9AA3B2; color: #E8EAEE; } .ev.tentative.now .s { color: #9AA3B2; }
 
   .prices { width: 9rem; }
   .pr { height: 4.2rem; display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
