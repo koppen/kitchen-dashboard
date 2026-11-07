@@ -32,7 +32,7 @@ RSpec.describe "Dashboard", type: :request do
     get "/"
     expect(last_response).to be_ok
     expect(last_response.body).to include("forældet: vejr", "Dinner at Mormor")
-    expect(last_response.body.scan('class="hr"').size).to eq(13)
+    expect(last_response.body.scan('class="hr"').size).to eq(14) # no alert row without weather
   end
 
   it "includes the boot id so open pages reload after a restart" do

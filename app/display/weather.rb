@@ -56,7 +56,7 @@ module KitchenDashboard
             mm += precip.(i0 + 1 + e)
             e += 1
           end
-          alerts << Alert.new(:rain, m.zero? ? "Regn nu" : "Regn fra #{at.(i0 + m)}", "#{decimal(mm, 1)} mm indtil #{at.(i0 + e)}")
+          alerts << Alert.new(:rain, m.zero? ? "Regn nu" : "Regn fra #{at.(i0 + m)}", "#{decimal(mm, 1)} mm til #{at.(i0 + e)}")
         end
 
         uv = ->(i) { h["uv_index"][i].to_f }
@@ -67,7 +67,7 @@ module KitchenDashboard
             peak = [peak, uv.(i0 + e)].max
             e += 1
           end
-          sub = k.zero? ? "UV #{peak.round} indtil #{at.(i0 + e)}" : "UV #{peak.round} fra #{at.(i0 + k)}"
+          sub = k.zero? ? "UV #{peak.round} til #{at.(i0 + e)}" : "UV #{peak.round} fra #{at.(i0 + k)}"
           alerts << Alert.new(:sun, "Solcreme", sub)
         end
 
@@ -78,7 +78,8 @@ module KitchenDashboard
         wet = (1..SAIL[:hours]).sum { precip.(i0 + it) }
         if window.("is_day").all?(1) && window.("weather_code").all? { it < 95 } &&
             avg.between?(SAIL[:min_wind], SAIL[:max_wind]) && gust <= SAIL[:max_gust] && wet < 1
-          alerts << Alert.new(:sail, "Godt sejlvejr", "#{compass(c["wind_direction_10m"])} #{avg.round} m/s, vindstød #{gust.round}")
+          # wind (gusts), as DMI writes it
+          alerts << Alert.new(:sail, "Godt sejlvejr", "#{compass(c["wind_direction_10m"])} #{avg.round} (#{gust.round}) m/s")
         end
 
         alerts

@@ -7,7 +7,7 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 - Dark, designed for 480x800 portrait, scales to the viewport (everything in rem, `html { font-size: min(100vw/48, 100vh/80) }`). 80 rem tall; the width is fluid (at least 48 rem), so on screens wider than 3:5 the calendar column takes the extra width instead of leaving side margins.
 - UI text in Danish (decimal comma, Danish compass points).
 - No date or clock (the kitchen already has plenty).
-- Top: current temperature + condition. Alert cards appear only when relevant: rain (rain in the next 4 h), sunscreen (UV >= 3), good sailing. Nothing shown when nothing is worth flagging.
+- Top: big current temperature, condition + "feels like" to its right. Below it, a horizontal row of alert tiles, only when relevant: rain (rain in the next 4 h), sunscreen (UV >= 3), good sailing (wind written "5 (8) m/s" = wind (gusts), as DMI does). No row when nothing is worth flagging; with all three, the tiles drop their icons to fit at 480 px.
 - All-day events: chips above the timeline.
 - Timeline: hour axis on the left, events in the middle (overlapping events split into columns, the event happening now is inverted), hourly price bars on the right. Bars are right-aligned to a shared edge (no axis line; the flat bar ends form it), price printed inside the bar at its right end (left of the bar when the bar is too short to hold it). Cheapest 4 consecutive hours = teal, expensive hours = orange, rest = slate. Dashed line marks midnight ("I MORGEN"). Number of hour rows adapts to the free height.
 - Avatars are one size everywhere; each person has an initial + colour.

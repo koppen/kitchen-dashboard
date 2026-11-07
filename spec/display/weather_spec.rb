@@ -12,9 +12,9 @@ RSpec.describe KitchenDashboard::Display::Weather do
 
   it "flags rain, sunscreen and sailing" do
     expect(weather.alerts.map(&:to_h)).to eq([
-      {kind: :rain, title: "Regn fra 11:00", sub: "1,8 mm indtil 13:00"},
-      {kind: :sun, title: "Solcreme", sub: "UV 5 indtil 11:00"},
-      {kind: :sail, title: "Godt sejlvejr", sub: "NV 5 m/s, vindstød 8"} # only 0.9 mm in the next 3 h
+      {kind: :rain, title: "Regn fra 11:00", sub: "1,8 mm til 13:00"},
+      {kind: :sun, title: "Solcreme", sub: "UV 5 til 11:00"},
+      {kind: :sail, title: "Godt sejlvejr", sub: "NV 5 (8) m/s"} # only 0.9 mm in the next 3 h
     ])
   end
 

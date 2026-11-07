@@ -1,18 +1,18 @@
 <div id="app">
   <div class="wx">
-    <div>
-      <% if weather %>
-        <div class="temp"><%= weather.temp %></div>
-        <div class="cond"><%= weather.condition %></div>
-        <div class="feel"><%= weather.feel %></div>
-      <% end %>
-    </div>
-    <div class="alerts">
-      <% (weather&.alerts || []).each do |a| %>
-        <div class="alert <%= a.kind %>"><%= icon(a.kind) %><div><div class="t"><%= a.title %></div><div class="s"><%= a.sub %></div></div></div>
-      <% end %>
-    </div>
+    <% if weather %>
+      <div class="temp"><%= weather.temp %></div>
+      <div><div class="cond"><%= weather.condition %></div><div class="feel"><%= weather.feel %></div></div>
+    <% end %>
   </div>
+
+  <% if weather&.alerts&.any? %>
+    <div class="alerts<%= " crowded" if weather.alerts.size > 2 %>">
+      <% weather.alerts.each do |a| %>
+        <div class="alert <%= a.kind %>"><%= icon(a.kind) %><div class="txt"><div class="t"><%= a.title %></div><div class="s"><%= a.sub %></div></div></div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if all_day.any? %>
     <div class="allday">
