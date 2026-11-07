@@ -18,7 +18,7 @@ module KitchenDashboard
 
       def boot_id = App::BOOT_ID
 
-      def tentative?(event) = Display::Timeline.tentative?(event)
+      def tentative?(event) = Display::Agenda.tentative?(event)
     end
   end
 end

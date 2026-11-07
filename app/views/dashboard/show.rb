@@ -21,12 +21,12 @@ module KitchenDashboard
         end
 
         expose :all_day do |events, now:|
-          Display::Timeline.all_day(events, now)
+          Display::Agenda.all_day(events, now)
         end
 
-        expose :timeline do |weather, all_day, events, now:|
-          height = Display::Layout.timeline_height(alerts: weather&.alerts&.size || 0, all_day: all_day.any?)
-          Display::Timeline.new(now:, height:, events:)
+        expose :agenda do |weather, all_day, events, now:|
+          height = Display::Layout.agenda_height(alerts: weather&.alerts&.size || 0, all_day: all_day.any?)
+          Display::Agenda.new(now:, height:, events:)
         end
 
         expose :prices do |now:|
@@ -34,7 +34,7 @@ module KitchenDashboard
         end
 
         # depends on the others so it is evaluated after the sources were called
-        expose :stale do |weather, timeline, prices|
+        expose :stale do |weather, agenda, prices|
           {"kalender" => events_source, "vejr" => weather_source, "elpriser" => prices_source}.select { |_, s| s.stale? }.keys
         end
 

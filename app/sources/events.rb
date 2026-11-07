@@ -5,13 +5,14 @@ require "time"
 
 module KitchenDashboard
   module Sources
-    # Today's events from Google Calendar, read as the signed-in user (OAuth refresh token from
+    # Events from today and the next DAYS_AHEAD days from Google Calendar, read as the signed-in user (OAuth refresh token from
     # bin/google-auth). The same event seen on several calendars is merged; people are taken from
     # the calendar and the attendee list.
     class Events
       include Deps["http", "cache", "settings"]
 
       TTL = 5 * 60
+      DAYS_AHEAD = 14 # the list shows the next events, however far off
       TOKEN_URL = "https://oauth2.googleapis.com/token"
 
       def call = cache.fetch(:events, TTL) { fetch }
@@ -23,7 +24,7 @@ module KitchenDashboard
       def fetch
         bearer = "Bearer #{token}"
         from = Date.today.to_time
-        to = Time.now + 16 * 3600
+        to = (Date.today + DAYS_AHEAD).to_time
         seen = {}
 
         lists = Config::CALENDARS.map { |cal| Thread.new { [cal, items(cal, from, to, bearer)] } }.map(&:value)

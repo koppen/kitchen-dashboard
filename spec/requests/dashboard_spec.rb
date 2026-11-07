@@ -23,7 +23,8 @@ RSpec.describe "Dashboard", type: :request do
     body = last_response.body
     expect(body).to include('<div class="temp">9°</div>', "Overskyet", "Solcreme", "HELE DAGEN", "School trip", "Dinner at Mormor", "STRØMPRIS")
     expect(body).not_to include("Already over", "forældet:")
-    expect(body.scan('class="hr"').size).to eq(9) # alert row, all-day row and price chart
+    expect(body.scan(/class="ev[ "]/).size).to eq(3) # "Already over" and the all-day event aren't rows
+    expect(body).to include('class="ev now"')
     expect(body.scan('class="slot"').size).to eq(24)
   end
 
@@ -32,7 +33,7 @@ RSpec.describe "Dashboard", type: :request do
     get "/"
     expect(last_response).to be_ok
     expect(last_response.body).to include("forældet: vejr", "Dinner at Mormor")
-    expect(last_response.body.scan('class="hr"').size).to eq(11) # no alert row without weather
+    expect(last_response.body).to include("STRØMPRIS")
   end
 
   it "includes the boot id so open pages reload after a restart" do

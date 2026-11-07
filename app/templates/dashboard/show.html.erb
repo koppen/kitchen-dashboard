@@ -23,22 +23,20 @@
     </div>
   <% end %>
 
-  <div class="heads"><div class="h"></div><div class="c">KALENDER</div></div>
-
-  <div id="tl" style="height:<%= rem(timeline.height) %>">
-    <div class="hours"><% timeline.hours.each do |h| %><div class="hr"><%= h %></div><% end %></div>
-    <div class="cal" style="height:<%= rem(timeline.height) %>">
-      <% if (mid = timeline.midnight) %>
-        <div class="mid" style="top:<%= rem(mid) %>"></div><div class="midl" style="top:<%= rem(mid) %>">I MORGEN</div>
-      <% end %>
-      <% timeline.events.each do |e| %>
-        <div class="ev <%= e.cols == 1 ? "wide" : "narrow" %><%= " now" if e.now %><%= " tentative" if e.tentative %>"
-             style="left:<%= (e.col * 100.0 / e.cols).round(2) %>%;width:calc(<%= (100.0 / e.cols).round(2) %>% - .4rem);top:<%= rem(e.top) %>;height:<%= rem(e.height) %>">
+  <div class="agenda" style="height:<%= rem(agenda.height) %>">
+    <% agenda.items.each do |e| %>
+      <% if e.day? %>
+        <div class="day"><%= e.label %></div>
+      <% else %>
+        <div class="ev<%= " now" if e.now %><%= " tentative" if e.tentative %>">
+          <div class="when"><% if e.time %><div class="t1"><%= e.time %></div><% end %><div class="t2"><%= e.until %></div></div>
           <div class="txt"><div class="t"><%= e.title %></div><% if e.sub %><div class="s"><%= e.sub %></div><% end %></div>
           <div class="avs"><% e.who.each do |p| %><%= avatar(p) %><% end %></div>
         </div>
       <% end %>
-    </div>
+    <% end %>
+    <% if agenda.more.positive? %><div class="more">+ <%= agenda.more %> flere</div><% end %>
+    <% if agenda.items.empty? && agenda.more.zero? %><div class="empty">Ingen aftaler</div><% end %>
   </div>
 
   <div class="el">
