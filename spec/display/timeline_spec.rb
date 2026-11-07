@@ -40,6 +40,8 @@ RSpec.describe KitchenDashboard::Display::Timeline do
     expect(prices.map(&:kind)).to include(:dear)
     expect(prices.first.value).to match(/\A\d+,\d\d\z/) # Danish decimal comma
     expect(prices.map(&:width).max).to be_within(1e-9).of(described_class::BAR_MAX)
+    expect(prices.map { [it.width >= described_class::LABEL_MIN, it.inside] }).to all(satisfy { |fits, inside| fits == inside })
+    expect(prices.map(&:inside)).to include(true, false) # the mock has bars too short for their label
   end
 
   it "lists all-day events for today" do

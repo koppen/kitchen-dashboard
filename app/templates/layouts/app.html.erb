@@ -37,7 +37,7 @@
   .chip b { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .heads { display: flex; gap: .6rem; font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; height: 1.2rem; line-height: 1.2rem; color: #9AA3B2; flex: none; }
-  .heads .h { width: 3rem; } .heads .c { flex: 1; min-width: 0; } .heads .p { width: 14rem; text-align: right; }
+  .heads .h { width: 3rem; } .heads .c { flex: 1; min-width: 0; } .heads .p { width: 9rem; text-align: right; }
 
   #tl { display: flex; align-items: flex-start; gap: .6rem; overflow: hidden; flex: none; }
   .hours { width: 3rem; }
@@ -56,12 +56,15 @@
   .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
   .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
 
-  .prices { box-sizing: border-box; width: 14rem; border-right: .25rem solid #E8EAEE; }
+  .prices { width: 9rem; }
   .pr { height: 4.2rem; display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
   .pr .n { font-size: 1.3rem; line-height: 1; color: #9AA3B2; }
-  .pr .bar { height: 2.6rem; border-radius: .5rem 0 0 .5rem; background: #4A5466; }
+  .pr .bar { box-sizing: border-box; height: 2.6rem; border-radius: .5rem 0 0 .5rem; background: #4A5466;
+             display: flex; align-items: center; justify-content: flex-end; padding-right: .6rem; }
+  .pr .bar .n { color: #E8EAEE; }
   .pr.dear .n { color: #F2A07B; } .pr.dear .bar { background: #F2A07B; }
   .pr.cheap .n { color: #5ED1B1; font-weight: 700; } .pr.cheap .bar { background: #5ED1B1; }
+  .pr.dear .bar .n, .pr.cheap .bar .n { color: #12151A; }
 
   .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: #F2A07B; }
 </style>

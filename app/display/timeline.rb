@@ -8,13 +8,14 @@ module KitchenDashboard
     # Hour rows from the current hour, positioned events, and price bars, on one hour axis.
     class Timeline
       ROW = 4.2        # rem per hour
-      BAR_MAX = 9.4    # rem, length of the most expensive bar
+      BAR_MAX = 9.0    # rem, length of the most expensive bar (the price column width)
+      LABEL_MIN = 3.8  # rem, shortest bar that fits its price inside
       CHEAP_H = 4      # length of the highlighted cheapest window (hours)
       SPREAD_MIN = 0.3 # kr/kWh: below this spread nothing is flagged as expensive
       HOUR = 3600
 
       Event = Data.define(:title, :sub, :who, :col, :cols, :top, :height, :now)
-      Price = Data.define(:value, :width, :kind) # kind: :cheap, :dear or nil
+      Price = Data.define(:value, :width, :kind, :inside) # kind: :cheap, :dear or nil
 
       attr_reader :rows, :start
 
@@ -100,7 +101,8 @@ module KitchenDashboard
 
           kind = :dear if max - min >= SPREAD_MIN && p >= min + 0.7 * (max - min)
           kind = :cheap if best && i >= best && i < best + CHEAP_H
-          Price.new(value: format("%.2f", p).tr(".", ","), width: max.positive? ? [p, 0].max / max * BAR_MAX : 0, kind:)
+          width = max.positive? ? [p, 0].max / max * BAR_MAX : 0
+          Price.new(value: format("%.2f", p).tr(".", ","), width:, kind:, inside: width >= LABEL_MIN)
         end
       end
     end
