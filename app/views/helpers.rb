@@ -15,6 +15,8 @@ module KitchenDashboard
       def avatar(person) = tag.div(person[:initial], class: "av", style: "background:#{person[:color]}")
 
       def rem(x) = "#{x.round(2)}rem"
+
+      def boot_id = App::BOOT_ID
     end
   end
 end

@@ -35,6 +35,11 @@ RSpec.describe "Dashboard", type: :request do
     expect(last_response.body.scan('class="hr"').size).to eq(13)
   end
 
+  it "includes the boot id so open pages reload after a restart" do
+    get "/"
+    expect(last_response.body).to include(%(<meta name="boot-id" content="#{KitchenDashboard::App::BOOT_ID}">))
+  end
+
   it "is installable as a web app" do
     get "/"
     expect(last_response.body).to include('<link rel="manifest" href="/manifest.webmanifest">', 'name="apple-mobile-web-app-capable"')

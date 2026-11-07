@@ -15,7 +15,7 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 
 ## Files
 
-Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the browser only re-fetches it every minute (swapping `#app` in place, keeping the old page on failure) and requests a screen wake lock.
+Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the browser only re-fetches it every minute (swapping `#app` in place, keeping the old page on failure) and requests a screen wake lock. When the server has restarted (`App::BOOT_ID` in the `boot-id` meta tag changed) it reloads fully instead, so CSS/script changes reach installed copies without a manual reload.
 
 - `config/dashboard.rb`: household config (see below). `config/settings.rb`: `GOOGLE_TOKEN_FILE`.
 - `app/sources/`: data sources, each cached in `app/cache.rb` (in-memory, serves stale data on upstream failure). HTTP via `app/http.rb` (Net::HTTP).
