@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kitchen dashboard, timeline 480×800 display</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 48em; height: 80em; box-sizing: border-box; padding: 1.4em; background: #12151A; color: #E8EAEE; font-family: 'Space Grotesk', system-ui, sans-serif; display: flex; flex-direction: column; gap: 1em; font-variant-numeric: tabular-nums; font-size: {{fs}}px">
+
+  <div style="display: flex; gap: 1.6em; align-items: center; min-height: 14em">
+    <div style="display: flex; flex-direction: column; flex: 0 0 auto">
+      <div style="font-size: 8.8em; line-height: 0.9; font-weight: 700; letter-spacing: -0.045em">9°</div>
+      <div style="font-size: 2em; font-weight: 700; line-height: 1.1; margin-top: 0.4em">Overcast</div>
+      <div style="font-size: 1.4em; color: #9AA3B2; margin-top: 0.1em">Feels 6° · NW 7 m/s</div>
+    </div>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.6em">
+      <sc-for list="{{alerts}}" as="a" hint-placeholder-count="2">
+        <div style="display: flex; align-items: center; gap: 1em; border-radius: 1.2em; padding: 0.6em 1.2em; background: {{a.bg}}; color: {{a.ic}}">
+          <sc-if value="{{ a.isRain }}" hint-placeholder-val="{{ true }}">
+            <svg viewBox="0 0 24 24" style="width: 2.6em; height: 2.6em; flex: 0 0 auto" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C12 3 5 11 5 15a7 7 0 0 0 14 0C19 11 12 3 12 3z"/></svg>
+          </sc-if>
+          <sc-if value="{{ a.isSail }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 24 24" style="width: 2.6em; height: 2.6em; flex: 0 0 auto" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v14M12 4l7 11h-7M3 18h18l-3 3H6z"/></svg>
+          </sc-if>
+          <sc-if value="{{ a.isSun }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 24 24" style="width: 2.6em; height: 2.6em; flex: 0 0 auto" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+          </sc-if>
+          <div style="display: flex; flex-direction: column; min-width: 0; color: #E8EAEE">
+            <div style="font-size: 1.9em; font-weight: 700; line-height: 1.1">{{a.title}}</div>
+            <div style="font-size: 1.3em; color: #B9C0CC">{{a.sub}}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.8em; align-items: center">
+    <div style="font-size: 1.2em; font-weight: 700; letter-spacing: 0.12em; width: 2.6em; line-height: 1.1; color: #9AA3B2">ALL DAY</div>
+    <sc-for list="{{allDay}}" as="d" hint-placeholder-count="2">
+      <div style="flex: 1; min-width: 0; box-sizing: border-box; height: 3.6em; background: #232933; border-radius: 1em; padding: 0 0.8em; display: flex; align-items: center; gap: 0.8em">
+        <sc-for list="{{d.who}}" as="p" hint-placeholder-count="1">
+          <div style="width: 2.8em; height: 2.8em; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4em; font-weight: 700; color: #101318; background: {{p.bg}}">{{p.initial}}</div>
+        </sc-for>
+        <div style="font-size: 1.6em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.title}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; gap: 0.6em; font-size: 1.2em; font-weight: 700; letter-spacing: 0.12em; height: 1.2em; line-height: 1.2em; color: #9AA3B2">
+    <div style="width: 2.5em"></div>
+    <div style="flex: 1; min-width: 0">CALENDAR</div>
+    <div style="width: 11.67em; text-align: right">KR/KWH</div>
+  </div>
+
+  <div style="position: relative; display: flex; gap: 0.6em; height: 54.6em">
+    <div style="width: 3em; display: flex; flex-direction: column">
+      <sc-for list="{{hours}}" as="h" hint-placeholder-count="13">
+        <div style="height: 4.2em; font-size: 1.4em; color: #9AA3B2; line-height: 1; padding-top: 0.1em">{{h.label}}</div>
+      </sc-for>
+    </div>
+
+    <div style="position: relative; flex: 1; min-width: 0; height: 54.6em">
+      <sc-for list="{{events}}" as="e" hint-placeholder-count="4">
+        <div style="position: absolute; box-sizing: border-box; border-radius: 1.1em; padding: 0.5em 0.9em; overflow: hidden; display: flex; gap: 0.4em; left: {{e.left}}; width: {{e.width}}; top: {{e.top}}; height: {{e.h}}; background: {{e.bg}}; color: {{e.fg}}; flex-direction: {{e.dir}}; align-items: {{e.ai}}; justify-content: space-between">
+          <div style="min-width: 0; display: flex; flex-direction: column">
+            <div style="font-size: 1.8em; font-weight: 700; line-height: 1.05">{{e.title}}</div>
+            <sc-if value="{{ e.showSub }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size: 1.3em; line-height: 1.25; margin-top: 0.1em; color: {{e.sc}}">{{e.sub}}</div>
+            </sc-if>
+          </div>
+          <div style="display: flex; flex: 0 0 auto">
+            <sc-for list="{{e.who}}" as="p" hint-placeholder-count="2">
+              <div style="box-sizing: border-box; border: 0.25em solid {{e.bg}}; display: flex; align-items: center; justify-content: center; font-weight: 700; border-radius: 50%; color: #101318; margin-left: -0.5em; width: {{e.av}}; height: {{e.av}}; font-size: {{e.avf}}; background: {{p.bg}}">{{p.initial}}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="position: absolute; left: 0; right: 0; top: 29.4em; border-top: 0.1em dashed #5A6475"></div>
+      <div style="position: absolute; right: 0.2em; top: 29.6em; font-size: 1.1em; font-weight: 700; letter-spacing: 0.12em; color: #9AA3B2">TOMORROW</div>
+    </div>
+
+    <div style="box-sizing: border-box; width: 14em; height: 54.6em; display: flex; flex-direction: column; border-right: 0.25em solid #E8EAEE">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="13">
+        <div style="height: 4.2em; display: flex; align-items: center; justify-content: flex-end; gap: 0.6em">
+          <div style="font-size: 1.3em; line-height: 1; color: {{b.lc}}; font-weight: {{b.lw}}">{{b.p}}</div>
+          <div style="height: 2.6em; border-radius: 0.5em 0 0 0.5em; width: {{b.w}}; background: {{b.bg}}"></div>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","default":"rain + sail","options":["rain + sail","nothing to flag","sun + sail","all three"]},"scale":{"editor":"range","default":1,"min":0.5,"max":2,"step":0.05},"$preview":{"width":480,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const H = 4.2; // em per hour
+    const em = (n) => n.toFixed(2) + 'em';
+    const col = { J: '#7FA4FF', M: '#FF9B63', A: '#4FD1B0', I: '#C79BFF' };
+    const who = (s) => s.split('').map((c) => ({ initial: c, bg: col[c] }));
+
+    const raw = [
+      { s: 17.5, e: 19, title: 'Football training', sub: 'Hallen · until 19:00', who: 'A', now: true },
+      { s: 19, e: 21.5, title: 'Dinner at Mormor’s', sub: 'until 21:30', who: 'JAI' },
+      { s: 20, e: 22, title: 'Book club', sub: 'At Lise’s', who: 'M' },
+      { s: 22, e: 23, title: 'Pick up Mette', sub: '', who: 'J' }
+    ];
+    const sorted = raw.slice().sort((a, b) => a.s - b.s);
+    let cluster = [], clusterEnd = -1;
+    const clusters = [];
+    sorted.forEach((ev) => {
+      if (cluster.length && ev.s >= clusterEnd) { clusters.push(cluster); cluster = []; clusterEnd = -1; }
+      let c = 0;
+      while (cluster.some((x) => x.col === c && x.e > ev.s)) c++;
+      ev.col = c;
+      cluster.push(ev);
+      clusterEnd = Math.max(clusterEnd, ev.e);
+    });
+    if (cluster.length) clusters.push(cluster);
+    clusters.forEach((cl) => {
+      const n = Math.max(...cl.map((x) => x.col)) + 1;
+      cl.forEach((x) => { x.n = n; });
+    });
+
+    const events = sorted.map((ev) => {
+      const h = (ev.e - ev.s) * H - 0.4;
+      const wide = ev.n === 1;
+      return {
+        top: em((ev.s - 17) * H + 0.2),
+        h: em(h),
+        left: (ev.col * 100 / ev.n) + '%',
+        width: 'calc(' + (100 / ev.n) + '% - 0.4em)',
+        bg: ev.now ? '#E8EAEE' : '#232933',
+        fg: ev.now ? '#12151A' : '#E8EAEE',
+        sc: ev.now ? '#3B4250' : '#9AA3B2',
+        dir: wide ? 'row' : 'column',
+        ai: wide ? 'center' : 'stretch',
+        av: '2.8em',
+        avf: '1.4em',
+        showSub: !!ev.sub && h >= 5.6,
+        title: ev.title,
+        sub: ev.sub,
+        who: who(ev.who)
+      };
+    });
+
+    const allDay = [
+      { title: 'Ida’s school trip', who: who('I') },
+      { title: 'Mette in Aarhus', who: who('M') }
+    ];
+
+    const hours = [];
+    for (let i = 0; i < 13; i++) hours.push({ label: String((17 + i) % 24).padStart(2, '0') });
+
+    const prices = [1.95, 2.10, 1.88, 1.52, 1.18, 0.95, 0.78, 0.62, 0.52, 0.47, 0.44, 0.46, 0.58];
+    // cheapest 4 consecutive hours
+    let best = 0, bestSum = Infinity;
+    for (let i = 0; i + 4 <= prices.length; i++) {
+      const s = prices[i] + prices[i + 1] + prices[i + 2] + prices[i + 3];
+      if (s < bestSum) { bestSum = s; best = i; }
+    }
+    const bars = prices.map((p, i) => {
+      let bg = '#4A5466', lc = '#9AA3B2', lw = 400;
+      if (p >= 1.5) { bg = '#F2A07B'; lc = '#F2A07B'; }
+      if (i >= best && i < best + 4) { bg = '#5ED1B1'; lc = '#5ED1B1'; lw = 700; }
+      return { p: p.toFixed(2), w: em(p / 2.2 * 9.4), bg, lc, lw };
+    });
+
+    const all = {
+      rain: { isRain: true, isSail: false, isSun: false, bg: '#1D2B47', ic: '#8FB4FF', title: 'Rain from 19:30', sub: '1–2 mm until 22:00' },
+      sail: { isRain: false, isSail: true, isSun: false, bg: '#14332C', ic: '#5ED1B1', title: 'Good sailing', sub: 'S 6 m/s, gusts 9' },
+      sun: { isRain: false, isSail: false, isSun: true, bg: '#3A3115', ic: '#FFD166', title: 'Sunscreen', sub: 'UV 5 until 16:00' }
+    };
+    const scenario = this.props.scenario ?? 'rain + sail';
+    const pick = {
+      'rain + sail': ['rain', 'sail'],
+      'nothing to flag': [],
+      'sun + sail': ['sun', 'sail'],
+      'all three': ['rain', 'sun', 'sail']
+    }[scenario] || ['rain', 'sail'];
+    const alerts = pick.map((k) => all[k]);
+
+    const fs = 10 * (this.props.scale ?? 1);
+    return { events, allDay, hours, bars, alerts, fs };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+.env*.local
+log/*
+spec/examples.txt
+service-account.json

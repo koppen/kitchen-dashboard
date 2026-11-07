@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Everything is in rem. The layout is 48 x 80 rem, scaled to fit the screen (1rem = 10px at 480x800). */
+  html { font-size: min(100vw / 48, 100vh / 80); }
+  body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: none;
+         background: #12151A; color: #E8EAEE; font-family: 'Space Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  #app { position: relative; box-sizing: border-box; flex: none; width: 48rem; height: 80rem; padding: 1.4rem;
+         display: flex; flex-direction: column; gap: 1rem; }
+
+  .wx { display: flex; gap: 1.6rem; align-items: center; min-height: 14rem; }
+  .temp { font-size: 8.8rem; line-height: .9; font-weight: 700; letter-spacing: -.045em; }
+  .cond { font-size: 2rem; font-weight: 700; line-height: 1.1; margin-top: .4rem; }
+  .feel { font-size: 1.4rem; color: #9AA3B2; margin-top: .1rem; }
+  .alerts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .6rem; }
+  .alert { display: flex; align-items: center; gap: 1rem; border-radius: 1.2rem; padding: .6rem 1.2rem; }
+  .alert svg { width: 2.6rem; height: 2.6rem; flex: none; }
+  .alert .t { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: #E8EAEE; }
+  .alert .s { font-size: 1.3rem; color: #B9C0CC; }
+  .rain { background: #1D2B47; color: #8FB4FF; }
+  .sail { background: #14332C; color: #5ED1B1; }
+  .sun  { background: #3A3115; color: #FFD166; }
+
+  .av { box-sizing: border-box; width: 2.8rem; height: 2.8rem; flex: none; border-radius: 50%; display: flex; align-items: center;
+        justify-content: center; font-size: 1.4rem; font-weight: 700; color: #101318; }
+
+  .allday { display: flex; gap: .8rem; align-items: center; }
+  .allday .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; width: 2.6rem; line-height: 1.1; color: #9AA3B2; }
+  .chip { flex: 1; min-width: 0; box-sizing: border-box; height: 3.6rem; background: #232933; border-radius: 1rem; padding: 0 .8rem;
+          display: flex; align-items: center; gap: .8rem; }
+  .chip b { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .heads { display: flex; gap: .6rem; font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; height: 1.2rem; line-height: 1.2rem; color: #9AA3B2; }
+  .heads .h { width: 3rem; } .heads .c { flex: 1; min-width: 0; } .heads .p { width: 14rem; text-align: right; }
+
+  #tl { flex: 1; min-height: 0; display: flex; align-items: flex-start; gap: .6rem; overflow: hidden; }
+  .hours { width: 3rem; }
+  .hr { height: 4.2rem; font-size: 1.4rem; color: #9AA3B2; line-height: 1; padding-top: .1rem; }
+  .cal { position: relative; flex: 1; min-width: 0; }
+  .mid { position: absolute; left: 0; right: 0; border-top: .1rem dashed #5A6475; }
+  .midl { position: absolute; right: .2rem; margin-top: .2rem; font-size: 1.1rem; font-weight: 700; letter-spacing: .12em; color: #9AA3B2; }
+
+  .ev { position: absolute; box-sizing: border-box; border-radius: 1.1rem; padding: .5rem .9rem; overflow: hidden; display: flex; gap: .4rem;
+        justify-content: space-between; background: #232933; color: #E8EAEE; }
+  .ev.wide { flex-direction: row; align-items: center; } .ev.narrow { flex-direction: column; }
+  .ev .t { font-size: 1.8rem; font-weight: 700; line-height: 1.05; }
+  .ev .s { font-size: 1.3rem; line-height: 1.25; margin-top: .1rem; color: #9AA3B2; }
+  .ev .txt { min-width: 0; display: flex; flex-direction: column; }
+  .ev .avs { display: flex; flex: none; }
+  .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
+  .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
+
+  .prices { box-sizing: border-box; width: 14rem; border-right: .25rem solid #E8EAEE; }
+  .pr { height: 4.2rem; display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
+  .pr .n { font-size: 1.3rem; line-height: 1; color: #9AA3B2; }
+  .pr .bar { height: 2.6rem; border-radius: .5rem 0 0 .5rem; }
+
+  .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: #F2A07B; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---- tuning ----------------------------------------------------------------
+const ROW = 4.2;            // rem per hour on the timeline
+const BAR_MAX = 9.4;        // rem, length of the most expensive bar
+const CHEAP_H = 4;          // length of the highlighted cheapest window (hours)
+const SPREAD_MIN = 0.3;     // kr/kWh: below this spread nothing is flagged as expensive
+const RAIN = { mm: 0.2, hours: 4 };                   // flag rain of at least 0.2 mm/h in the next 4 h
+const UV_LIMIT = 3;                                   // flag sunscreen at UV index >= 3
+const SAIL = { minWind: 3, maxWind: 9, maxGust: 12, hours: 3 };   // m/s, next 3 daylight hours, dry
+
+// ---- data ------------------------------------------------------------------
+const EVERY = { events: 5 * 60e3, weather: 10 * 60e3, prices: 30 * 60e3 };
+const data = {}, okAt = {}, t0 = Date.now();
+
+async function pull(k) {
+  try {
+    const r = await fetch('/api/' + k);
+    if (!r.ok) throw new Error(r.status);
+    data[k] = await r.json();
+    okAt[k] = Date.now();
+  } catch (e) { console.error(k, e); }
+  render();
+}
+Object.keys(EVERY).forEach((k) => { pull(k); setInterval(() => pull(k), EVERY[k]); });
+setInterval(render, 60e3);
+
+const wake = () => navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {});
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && wake());
+wake();
+
+// ---- helpers ---------------------------------------------------------------
+const HOUR = 36e5;
+const pad = (n) => String(n).padStart(2, '0');
+const hhmm = (d) => pad(d.getHours()) + ':' + pad(d.getMinutes());
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const avatar = (p) => `<div class="av" style="background:${p.color}">${esc(p.initial)}</div>`;
+
+const ICON = {
+  rain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C12 3 5 11 5 15a7 7 0 0 0 14 0C19 11 12 3 12 3z"/></svg>',
+  sail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M12 4l7 11h-7M3 18h18l-3 3H6z"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
+};
+
+// WMO weather codes
+function condition(c) {
+  if (c === 0) return 'Clear';
+  if (c <= 2) return 'Partly cloudy';
+  if (c === 3) return 'Overcast';
+  if (c <= 48) return 'Fog';
+  if (c <= 57) return 'Drizzle';
+  if (c <= 67) return 'Rain';
+  if (c <= 77) return 'Snow';
+  if (c <= 82) return 'Showers';
+  if (c <= 86) return 'Snow showers';
+  return 'Thunderstorm';
+}
+const compass = (deg) => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(deg / 45) % 8];
+
+// ---- weather ---------------------------------------------------------------
+// Open-Meteo hourly precipitation is the sum over the *preceding* hour, so rain during the
+// hour starting at time[i] is precipitation[i + 1]. Times are local to the forecast location.
+function weatherView(w) {
+  const c = w.current, h = w.hourly;
+  const i0 = h.time.indexOf(c.time.slice(0, 13) + ':00');
+  const at = (i) => h.time[i].slice(11, 16);
+  const alerts = [];
+
+  if (i0 >= 0) {
+    const rainIn = (m) => h.precipitation[i0 + 1 + m] >= RAIN.mm;   // rain during hour i0+m
+    let m = 0;
+    while (m < RAIN.hours && !rainIn(m)) m++;
+    if (m < RAIN.hours) {
+      let e = m, mm = 0;
+      while (rainIn(e)) { mm += h.precipitation[i0 + 1 + e]; e++; }
+      alerts.push({ kind: 'rain', t: m === 0 ? 'Rain now' : 'Rain from ' + at(i0 + m), s: `${mm.toFixed(1)} mm until ${at(i0 + e)}` });
+    }
+
+    const uv = h.uv_index;
+    let k = 0;
+    while (k < 3 && !(uv[i0 + k] >= UV_LIMIT)) k++;
+    if (k < 3) {
+      let e = k, peak = 0;
+      while (uv[i0 + e] >= UV_LIMIT) { peak = Math.max(peak, uv[i0 + e]); e++; }
+      alerts.push({ kind: 'sun', t: 'Sunscreen', s: k === 0 ? `UV ${Math.round(peak)} until ${at(i0 + e)}` : `UV ${Math.round(peak)} from ${at(i0 + k)}` });
+    }
+
+    const r = (a) => a.slice(i0, i0 + SAIL.hours);
+    const wind = r(h.wind_speed_10m), gust = r(h.wind_gusts_10m);
+    const avg = wind.reduce((a, b) => a + b, 0) / wind.length;
+    const wet = h.precipitation.slice(i0 + 1, i0 + 1 + SAIL.hours).reduce((a, b) => a + b, 0);
+    if (r(h.is_day).every((d) => d === 1) && r(h.weather_code).every((x) => x < 95) &&
+        avg >= SAIL.minWind && avg <= SAIL.maxWind && Math.max(...gust) <= SAIL.maxGust && wet < 1) {
+      alerts.push({ kind: 'sail', t: 'Good sailing', s: `${compass(c.wind_direction_10m)} ${Math.round(avg)} m/s, gusts ${Math.round(Math.max(...gust))}` });
+    }
+  }
+
+  return {
+    temp: Math.round(c.temperature_2m) + '°',
+    cond: condition(c.weather_code),
+    feel: `Feels ${Math.round(c.apparent_temperature)}° · ${compass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} m/s`,
+    alerts,
+  };
+}
+
+// ---- calendar --------------------------------------------------------------
+function allDayView(now) {
+  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  return data.events.filter((e) => e.allDay && e.start <= today && today < e.end).slice(0, 3);
+}
+
+function eventsView(now, start, rows) {
+  const winEnd = start.getTime() + rows * HOUR;
+  const list = data.events
+    .filter((e) => !e.allDay)
+    .map((e) => {
+      const s0 = Date.parse(e.start), e0 = Date.parse(e.end);
+      return { e, s: Math.max(s0, start.getTime()), en: Math.min(e0, winEnd), now: s0 <= now && now < e0, e0 };
+    })
+    .filter((x) => x.en > x.s && x.e0 > now)
+    .sort((a, b) => a.s - b.s || b.en - a.en);
+
+  // columns for overlapping events
+  let cluster = [], clusterEnd = 0;
+  const clusters = [];
+  for (const x of list) {
+    if (cluster.length && x.s >= clusterEnd) { clusters.push(cluster); cluster = []; clusterEnd = 0; }
+    let col = 0;
+    while (cluster.some((y) => y.col === col && y.en > x.s)) col++;
+    x.col = col;
+    cluster.push(x);
+    clusterEnd = Math.max(clusterEnd, x.en);
+  }
+  if (cluster.length) clusters.push(cluster);
+  clusters.forEach((cl) => { const n = Math.max(...cl.map((y) => y.col)) + 1; cl.forEach((y) => { y.n = n; }); });
+
+  return list.map((x) => {
+    const top = (x.s - start.getTime()) / HOUR * ROW + 0.2;
+    const h = Math.max((x.en - x.s) / HOUR * ROW - 0.4, 3.4);
+    const sub = x.e.location || 'until ' + hhmm(new Date(x.e0));
+    const cls = 'ev ' + (x.n === 1 ? 'wide' : 'narrow') + (x.now ? ' now' : '');
+    return `<div class="${cls}" style="left:${x.col * 100 / x.n}%;width:calc(${100 / x.n}% - .4rem);top:${top}rem;height:${h}rem">
+      <div class="txt"><div class="t">${esc(x.e.title)}</div>${h >= 5.6 ? `<div class="s">${esc(sub)}</div>` : ''}</div>
+      <div class="avs">${x.e.who.map(avatar).join('')}</div></div>`;
+  }).join('');
+}
+
+// ---- prices ----------------------------------------------------------------
+function pricesView(start, rows) {
+  const byHour = new Map((data.prices || []).map((p) => [p.t, p.p]));
+  const v = Array.from({ length: rows }, (_, i) => byHour.get(start.getTime() + i * HOUR));
+  const known = v.filter((x) => x != null);
+  if (!known.length) return '';
+  const min = Math.min(...known), max = Math.max(...known);
+
+  let best = -1, bestSum = Infinity;
+  for (let i = 0; i + CHEAP_H <= rows; i++) {
+    const w = v.slice(i, i + CHEAP_H);
+    if (w.some((x) => x == null)) continue;
+    const s = w.reduce((a, b) => a + b, 0);
+    if (s < bestSum) { bestSum = s; best = i; }
+  }
+
+  return v.map((p, i) => {
+    if (p == null) return '<div class="pr"></div>';
+    let color = '#4A5466', label = '#9AA3B2', weight = 400;
+    if (max - min >= SPREAD_MIN && p >= min + 0.7 * (max - min)) color = label = '#F2A07B';
+    if (best >= 0 && i >= best && i < best + CHEAP_H) { color = label = '#5ED1B1'; weight = 700; }
+    return `<div class="pr"><div class="n" style="color:${label};font-weight:${weight}">${p.toFixed(2)}</div>
+      <div class="bar" style="width:${(Math.max(p, 0) / max * BAR_MAX).toFixed(2)}rem;background:${color}"></div></div>`;
+  }).join('');
+}
+
+// ---- render ----------------------------------------------------------------
+const app = document.getElementById('app');
+
+function render() {
+  const now = new Date();
+  const w = data.weather ? weatherView(data.weather) : null;
+  const allDay = data.events ? allDayView(now) : [];
+
+  app.innerHTML = `
+    <div class="wx">
+      <div><div class="temp">${w ? w.temp : ''}</div><div class="cond">${w ? w.cond : ''}</div><div class="feel">${w ? esc(w.feel) : ''}</div></div>
+      <div class="alerts">${w ? w.alerts.map((a) => `<div class="alert ${a.kind}">${ICON[a.kind]}<div><div class="t">${esc(a.t)}</div><div class="s">${esc(a.s)}</div></div></div>`).join('') : ''}</div>
+    </div>
+    ${allDay.length ? `<div class="allday"><div class="lbl">ALL DAY</div>${allDay.map((e) => `<div class="chip">${e.who.map(avatar).join('')}<b>${esc(e.title)}</b></div>`).join('')}</div>` : ''}
+    <div class="heads"><div class="h"></div><div class="c">CALENDAR</div><div class="p">KR/KWH</div></div>
+    <div id="tl"></div>
+    <div class="stale"></div>`;
+
+  // the timeline takes the remaining height; fit as many whole hours as possible
+  const tl = document.getElementById('tl');
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const rows = Math.max(1, Math.floor(tl.clientHeight / rem / ROW));
+  const start = new Date(now);
+  start.setMinutes(0, 0, 0);
+
+  const mid = new Date(now);
+  mid.setHours(24, 0, 0, 0);
+  const midRow = (mid - start) / HOUR;
+
+  tl.innerHTML = `
+    <div class="hours">${Array.from({ length: rows }, (_, i) => `<div class="hr">${pad(new Date(start.getTime() + i * HOUR).getHours())}</div>`).join('')}</div>
+    <div class="cal" style="height:${rows * ROW}rem">
+      ${midRow < rows ? `<div class="mid" style="top:${midRow * ROW}rem"></div><div class="midl" style="top:${midRow * ROW}rem">TOMORROW</div>` : ''}
+      ${data.events ? eventsView(now, start, rows) : ''}
+    </div>
+    <div class="prices" style="height:${rows * ROW}rem">${pricesView(start, rows)}</div>`;
+
+  const stale = Object.keys(EVERY).filter((k) => Date.now() - (okAt[k] || t0) > 2 * EVERY[k]);
+  app.querySelector('.stale').textContent = stale.length ? 'stale: ' + stale.join(', ') : '';
+}
+render();
+</script>
+</body>
+</html>

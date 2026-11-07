@@ -1,0 +1,9 @@
+{
+  "name": "kitchen-dashboard",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/server.test.js && node test/client.test.js"
+  },
+  "devDependencies": { "jsdom": "^26.0.0" }
+}

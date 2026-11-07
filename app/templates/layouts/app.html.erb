@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Everything is in rem. The layout is 48 x 80 rem, scaled to fit the screen (1rem = 10px at 480x800).
+     Heights that decide the number of timeline rows are mirrored in app/display/layout.rb. */
+  html { font-size: min(100vw / 48, 100vh / 80); }
+  body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: none;
+         background: #12151A; color: #E8EAEE; font-family: 'Space Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  #app { position: relative; box-sizing: border-box; flex: none; width: 48rem; height: 80rem; padding: 1.4rem;
+         display: flex; flex-direction: column; gap: 1rem; }
+
+  .wx { display: flex; gap: 1.6rem; align-items: center; min-height: 14rem; flex: none; }
+  .temp { font-size: 8.8rem; line-height: .9; font-weight: 700; letter-spacing: -.045em; }
+  .cond { font-size: 2rem; font-weight: 700; line-height: 1.1; margin-top: .4rem; }
+  .feel { font-size: 1.4rem; color: #9AA3B2; margin-top: .1rem; }
+  .alerts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .6rem; }
+  .alert { box-sizing: border-box; height: 4.4rem; display: flex; align-items: center; gap: 1rem; border-radius: 1.2rem; padding: 0 1.2rem; }
+  .alert svg { width: 2.6rem; height: 2.6rem; flex: none; }
+  .alert .t { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: #E8EAEE; }
+  .alert .s { font-size: 1.3rem; line-height: 1.2; color: #B9C0CC; white-space: nowrap; }
+  .rain { background: #1D2B47; color: #8FB4FF; }
+  .sail { background: #14332C; color: #5ED1B1; }
+  .sun  { background: #3A3115; color: #FFD166; }
+
+  .av { box-sizing: border-box; width: 2.8rem; height: 2.8rem; flex: none; border-radius: 50%; display: flex; align-items: center;
+        justify-content: center; font-size: 1.4rem; font-weight: 700; color: #101318; }
+
+  .allday { display: flex; gap: .8rem; align-items: center; flex: none; }
+  .allday .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; width: 2.6rem; line-height: 1.1; color: #9AA3B2; }
+  .chip { flex: 1; min-width: 0; box-sizing: border-box; height: 3.6rem; background: #232933; border-radius: 1rem; padding: 0 .8rem;
+          display: flex; align-items: center; gap: .8rem; }
+  .chip b { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .heads { display: flex; gap: .6rem; font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; height: 1.2rem; line-height: 1.2rem; color: #9AA3B2; flex: none; }
+  .heads .h { width: 3rem; } .heads .c { flex: 1; min-width: 0; } .heads .p { width: 14rem; text-align: right; }
+
+  #tl { display: flex; align-items: flex-start; gap: .6rem; overflow: hidden; flex: none; }
+  .hours { width: 3rem; }
+  .hr { height: 4.2rem; font-size: 1.4rem; color: #9AA3B2; line-height: 1; padding-top: .1rem; box-sizing: border-box; }
+  .cal { position: relative; flex: 1; min-width: 0; }
+  .mid { position: absolute; left: 0; right: 0; border-top: .1rem dashed #5A6475; }
+  .midl { position: absolute; right: .2rem; margin-top: .2rem; font-size: 1.1rem; font-weight: 700; letter-spacing: .12em; color: #9AA3B2; }
+
+  .ev { position: absolute; box-sizing: border-box; border-radius: 1.1rem; padding: .5rem .9rem; overflow: hidden; display: flex; gap: .4rem;
+        justify-content: space-between; background: #232933; color: #E8EAEE; }
+  .ev.wide { flex-direction: row; align-items: center; } .ev.narrow { flex-direction: column; }
+  .ev .t { font-size: 1.8rem; font-weight: 700; line-height: 1.05; }
+  .ev .s { font-size: 1.3rem; line-height: 1.25; margin-top: .1rem; color: #9AA3B2; }
+  .ev .txt { min-width: 0; display: flex; flex-direction: column; }
+  .ev .avs { display: flex; flex: none; }
+  .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
+  .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
+
+  .prices { box-sizing: border-box; width: 14rem; border-right: .25rem solid #E8EAEE; }
+  .pr { height: 4.2rem; display: flex; align-items: center; justify-content: flex-end; gap: .6rem; }
+  .pr .n { font-size: 1.3rem; line-height: 1; color: #9AA3B2; }
+  .pr .bar { height: 2.6rem; border-radius: .5rem 0 0 .5rem; background: #4A5466; }
+  .pr.dear .n { color: #F2A07B; } .pr.dear .bar { background: #F2A07B; }
+  .pr.cheap .n { color: #5ED1B1; font-weight: 700; } .pr.cheap .bar { background: #5ED1B1; }
+
+  .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: #F2A07B; }
+</style>
+</head>
+<body>
+<%= yield %>
+<script>
+  // Re-fetch the page every minute and swap #app in place; on failure keep showing the last page.
+  let okAt = Date.now();
+  setInterval(async () => {
+    try {
+      const r = await fetch(location.href, { cache: 'no-store' });
+      if (!r.ok) throw new Error(r.status);
+      const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+      document.getElementById('app').replaceWith(doc.getElementById('app'));
+      okAt = Date.now();
+    } catch (e) {
+      if (Date.now() - okAt > 3 * 60e3) document.querySelector('.stale').textContent = 'offline';
+    }
+  }, 60e3);
+
+  const wake = () => navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {});
+  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && wake());
+  wake();
+</script>
+</body>
+</html>

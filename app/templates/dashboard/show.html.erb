@@ -1,0 +1,54 @@
+<div id="app">
+  <div class="wx">
+    <div>
+      <% if weather %>
+        <div class="temp"><%= weather.temp %></div>
+        <div class="cond"><%= weather.condition %></div>
+        <div class="feel"><%= weather.feel %></div>
+      <% end %>
+    </div>
+    <div class="alerts">
+      <% (weather&.alerts || []).each do |a| %>
+        <div class="alert <%= a.kind %>"><%= icon(a.kind) %><div><div class="t"><%= a.title %></div><div class="s"><%= a.sub %></div></div></div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if all_day.any? %>
+    <div class="allday">
+      <div class="lbl">ALL DAY</div>
+      <% all_day.each do |e| %>
+        <div class="chip"><% e[:who].each do |p| %><%= avatar(p) %><% end %><b><%= e[:title] %></b></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="heads"><div class="h"></div><div class="c">CALENDAR</div><div class="p">KR/KWH</div></div>
+
+  <div id="tl" style="height:<%= rem(timeline.height) %>">
+    <div class="hours"><% timeline.hours.each do |h| %><div class="hr"><%= h %></div><% end %></div>
+    <div class="cal" style="height:<%= rem(timeline.height) %>">
+      <% if (mid = timeline.midnight) %>
+        <div class="mid" style="top:<%= rem(mid) %>"></div><div class="midl" style="top:<%= rem(mid) %>">TOMORROW</div>
+      <% end %>
+      <% timeline.events.each do |e| %>
+        <div class="ev <%= e.cols == 1 ? "wide" : "narrow" %><%= " now" if e.now %>"
+             style="left:<%= (e.col * 100.0 / e.cols).round(2) %>%;width:calc(<%= (100.0 / e.cols).round(2) %>% - .4rem);top:<%= rem(e.top) %>;height:<%= rem(e.height) %>">
+          <div class="txt"><div class="t"><%= e.title %></div><% if e.sub %><div class="s"><%= e.sub %></div><% end %></div>
+          <div class="avs"><% e.who.each do |p| %><%= avatar(p) %><% end %></div>
+        </div>
+      <% end %>
+    </div>
+    <div class="prices" style="height:<%= rem(timeline.height) %>">
+      <% timeline.prices.each do |p| %>
+        <% if p %>
+          <div class="pr <%= p.kind %>"><div class="n"><%= p.value %></div><div class="bar" style="width:<%= rem(p.width) %>"></div></div>
+        <% else %>
+          <div class="pr"></div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="stale"><%= "stale: #{stale.join(", ")}" if stale.any? %></div>
+</div>
