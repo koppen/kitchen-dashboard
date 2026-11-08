@@ -3,3 +3,5 @@ log/*
 spec/examples.txt
 google-token.json
 client_secret*.json
+config/household.rb
+CLAUDE.local.md

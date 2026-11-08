@@ -5,7 +5,7 @@ ENV["TZ"] ||= "Europe/Copenhagen"
 require "hanami"
 require "rack/static"
 require "rack/mime"
-require_relative "dashboard"
+require_relative File.exist?(File.join(__dir__, "household.rb")) ? "household" : "household.example"
 
 module KitchenDashboard
   class App < Hanami::App

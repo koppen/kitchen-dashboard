@@ -21,6 +21,12 @@ RSpec.describe KitchenDashboard::Sources::Tariffs do
       record("5790000432752", "C", "2026-01-01T00:00:00", nil, [5] + [nil] * 23) # right code, wrong owner
     ]
   end
+  before do
+    stub_const("KitchenDashboard::Config::TARIFFS", [
+      ["5790000000001", "C"], ["5790000432752", "40000"], ["5790000432752", "41000"], ["5790000432752", "EA-001"]
+    ])
+  end
+
   let(:http) do
     FakeHttp.new do |_, url|
       expect(URI.decode_www_form_component(url)).to include('"GLN_Number":["5790000000001","5790000432752"]')

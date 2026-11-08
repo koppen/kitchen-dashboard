@@ -17,7 +17,7 @@ RSpec.describe KitchenDashboard::Sources::Prices do
   end
   let(:http) do
     FakeHttp.new do |_, url|
-      expect(url).to include("start=#{Date.today.iso8601}", "end=#{(Date.today + 3).iso8601}", "DK1")
+      expect(url).to include("start=#{Date.today.iso8601}", "end=#{(Date.today + 3).iso8601}", KitchenDashboard::Config::PRICE_AREA)
       {"records" => records}
     end
   end

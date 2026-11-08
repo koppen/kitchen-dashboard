@@ -19,9 +19,9 @@ Portrait display for the family kitchen: weather, today's calendar with attendee
 
 Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the browser only re-fetches it every minute (swapping `#app` in place, keeping the old page on failure) and requests a screen wake lock. When the server has restarted (`App::BOOT_ID` in the `boot-id` meta tag changed) it reloads fully instead, so CSS/script changes reach installed copies without a manual reload.
 
-- `config/dashboard.rb`: household config (see below). `config/settings.rb`: `GOOGLE_TOKEN_FILE`.
+- `config/household.rb`: household config (see below). `config/settings.rb`: `GOOGLE_TOKEN_FILE`.
 - `app/sources/`: data sources, each cached in `app/cache.rb` (in-memory, serves stale data on upstream failure). HTTP via `app/http.rb` (Net::HTTP).
-  - `events.rb`: Google Calendar (today + 14 days) as Parent A's Google account (OAuth refresh token from `bin/google-auth`), `singleEvents=true`, merges the same event across calendars, handles declined/cancelled, maps calendars and attendee emails to people. Cached 5 min.
+  - `events.rb`: Google Calendar (today + 14 days) as one family member's Google account (OAuth refresh token from `bin/google-auth`), `singleEvents=true`, merges the same event across calendars, handles declined/cancelled, maps calendars and attendee emails to people. Cached 5 min.
   - `weather.rb`: Open-Meteo passthrough using DMI's HARMONIE model (`models=dmi_seamless`); DMI has no UV index, so `uv_index` comes from a second request with Open-Meteo's default model. (DMI's own EDR API at opendataapi.dmi.dk needs no key but only has raw model fields: no weather code, apparent temperature or UV.) Cached 10 min.
   - `prices.rb`: what a kWh actually costs per hour: Energi Data Service `DayAheadPrices` (15-minute resolution since 2025-10-01; `Elspotprices` is discontinued) averaged to hours, + `MARKUP` + tariffs, × VAT. `t` is unix seconds. Cached 30 min.
   - `tariffs.rb`: per-kWh tariffs from EDS `DatahubPricelist` (grid company time-of-day tariff, Energinet transmission + system tariff, elafgift), selected by `TARIFFS`. Cached 24 h.
@@ -32,11 +32,13 @@ Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the
 - `spec/`: `bundle exec rspec`. Sources are tested with a fake HTTP client; display logic with fixtures; request specs stub the sources in the container.
 - `legacy-node/`: the previous Node implementation, kept for reference.
 
-## Config (`config/dashboard.rb`)
+## Config (`config/household.rb`)
 
-`LAT`/`LON` (our town), `PRICE_AREA` (DK1: our town), `MARKUP` (supplier markup, lambda taking the hour's `Time`), `VAT`, `TARIFFS` ([GLN, charge code] pairs), `PEOPLE` (J = Parent A, T = Parent B, Ma = Child A, Mt = Child B), `CALENDARS` (Google: Parent A's personal, Parent B's, Child A, Child B, Familie = all, Fælles = J+T; Parent A's work and Projects calendars are left out on purpose; `who` is a list of PEOPLE keys).
+Gitignored; `config/household.example.rb` is the committed template, and the app (and the specs) fall back to it when `household.rb` is missing. The actual household's values and notes are in `CLAUDE.local.md` (also gitignored). Specs must not depend on the real values (stub them or read them from `Config`).
 
-Electricity: the supplier moove, grid company the grid company El-Net (tariff C). Price per kWh = (spot + the supplier markup 6.4 øre ex VAT, 0 in the first 6 months + the grid company Nettarif C + Energinet transmission + system tariff + elafgift) × 1.25. Verified against invoice the latest invoice (Oct 2026): the "Transport og afgifter" line also contains two fixed monthly subscriptions (the grid company Net abo C 44 kr, Energinet TSO system abonnement 15.58 kr, ex VAT) that don't affect the per-kWh price. No separate trading-cost line on the invoice.
+`LAT`/`LON`, `PRICE_AREA` (DK1/DK2), `MARKUP` (supplier markup, lambda taking the hour's `Time`), `VAT`, `TARIFFS` ([GLN, charge code] pairs: grid company time-of-day tariff, Energinet transmission + system tariff, elafgift), `PEOPLE` (initials => colour + emails), `CALENDARS` (Google calendar IDs; `who` is a list of PEOPLE keys).
+
+Price per kWh = (spot + supplier markup + tariffs) × VAT.
 
 Google: needs `google-token.json` (or `GOOGLE_TOKEN_FILE`), made once with `bin/google-auth client_secret.json`. Setup: Google Cloud project → enable the Google Calendar API → OAuth consent screen (External, scope `calendar.readonly`), **publish it to "In production"** (in "Testing", refresh tokens expire after 7 days; for personal use, click past the "unverified app" warning) → Credentials → OAuth client ID of type "Desktop app" → download the JSON. Run the script on a machine with a browser (it listens on a 127.0.0.1 port for the redirect) and copy `google-token.json` to the server. The token stops working if unused for 6 months or if access is revoked in the Google account. Gitignored: `google-token.json`, `client_secret*.json`.
 
@@ -52,8 +54,6 @@ Run: `bundle exec puma -C config/puma.rb` (`PORT`/`HOST` env, default 0.0.0.0:80
 
 Assumptions still to verify against live data:
 - Open-Meteo hourly `precipitation` is the sum over the preceding hour (rain during the hour starting at `time[i]` is `precipitation[i+1]`).
-- When the the supplier markup starts (`MARKUP` assumes 2027-01-01; 0 on the Sep 2026 invoice, 6.4 øre in the Jan 2027 aconto).
-- Whether the supplier's billed "spotpris" includes trading costs (needs hourly consumption from Eloverblik to check).
 
 ## Next steps
 
