@@ -38,7 +38,7 @@ module KitchenDashboard
       # Labels under every slot (also empty ones): "Nu" for the current hour, then 00/06/12/18.
       def labels = Array.new(HOURS) { label(it) }
 
-      def lines = LINES.map { {value: it.to_i.to_s, bottom: it / SCALE_MAX, good: it <= CHEAP_BELOW} }
+      def lines = LINES.map { {value: "#{format("%.2f", it).tr(".", ",")} kr", bottom: it / SCALE_MAX, good: it <= CHEAP_BELOW} }
 
       private
 

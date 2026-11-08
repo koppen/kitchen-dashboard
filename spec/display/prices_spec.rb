@@ -40,6 +40,6 @@ RSpec.describe KitchenDashboard::Display::Prices do
   end
 
   it "has reference lines at 2 kr and, green, at 1 kr" do
-    expect(chart.lines).to eq([{value: "2", bottom: 2 / 3.0, good: false}, {value: "1", bottom: 1 / 3.0, good: true}])
+    expect(chart.lines).to eq([{value: "2,00 kr", bottom: 2 / 3.0, good: false}, {value: "1,00 kr", bottom: 1 / 3.0, good: true}])
   end
 end

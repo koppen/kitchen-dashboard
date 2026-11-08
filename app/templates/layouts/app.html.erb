@@ -98,12 +98,12 @@
   .ev.tentative .av, .chip.tentative .av { opacity: .55; }
   .ev.tentative.now { border-color: #9AA3B2; color: #E8EAEE; } .ev.tentative.now .s { color: #9AA3B2; }
 
-  /* price chart along the bottom; the line labels ("2", "1") sit in the left gutter */
+  /* price chart along the bottom; the line labels ("2,00 kr", "1,00 kr") sit in the left gutter */
   .el { height: 14rem; flex: none; display: flex; flex-direction: column; gap: .5rem; }
   .elh { height: 2.4rem; margin-bottom: .4rem; display: flex; justify-content: space-between; align-items: baseline; }
   .elh .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; color: #9AA3B2; }
   .elh .now { font-size: 1.4rem; color: #9AA3B2; } .elh .now b { font-size: 2.4rem; font-weight: 700; color: #E8EAEE; }
-  .chart { position: relative; flex: 1; min-height: 0; margin-left: 3.6rem; display: flex; align-items: flex-end; gap: .3rem;
+  .chart { position: relative; flex: 1; min-height: 0; margin-left: 5.4rem; display: flex; align-items: flex-end; gap: .3rem;
            border-bottom: .2rem solid #5A6475; }
   .slot { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
   .bar { width: 100%; background: #4A5466; border-radius: .4rem .4rem 0 0; }
@@ -111,10 +111,10 @@
   .bar.clipped { border-radius: 0; } /* above the top of the scale: cut off */
   .line { position: absolute; left: 0; right: 0; border-top: .15rem solid #5A6475; z-index: 1; }
   .line.good { border-color: #5ED1B1; }
-  .line span { position: absolute; left: -3.6rem; width: 3rem; transform: translateY(-50%); text-align: right;
+  .line span { position: absolute; left: -5.4rem; width: 4.8rem; white-space: nowrap; transform: translateY(-50%); text-align: right;
                font-size: 1.2rem; line-height: 1; color: #9AA3B2; }
   .line.good span { color: #5ED1B1; }
-  .ticks { height: 1.4rem; margin-left: 3.6rem; display: flex; gap: .3rem; font-size: 1.2rem; line-height: 1.4rem; color: #9AA3B2; }
+  .ticks { height: 1.4rem; margin-left: 5.4rem; display: flex; gap: .3rem; font-size: 1.2rem; line-height: 1.4rem; color: #9AA3B2; }
   .ticks div { flex: 1; min-width: 0; white-space: nowrap; overflow: visible; }
 
   .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: #F2A07B; }
