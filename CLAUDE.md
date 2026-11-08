@@ -44,6 +44,10 @@ Google: needs `google-token.json` (or `GOOGLE_TOKEN_FILE`), made once with `bin/
 
 `TZ` defaults to Europe/Copenhagen.
 
+Env-only configuration (for hosts without files): `HOUSEHOLD` = the contents of a `household.rb` (eval'd at boot instead of the file), `GOOGLE_TOKEN` = the contents of `google-token.json`. `DASHBOARD_KEY` makes the dashboard private (`lib/kitchen_dashboard/key_gate.rb`): open `/?key=<key>` once per browser to get a 10-year cookie; without it every page and `/api/*` is a 404 (static files stay public). Set it whenever the dashboard is reachable from the internet.
+
+Deploy: Hatchbox (Hanami app, `.ruby-version`), web process `HOST=127.0.0.1 bundle exec puma -C config/puma.rb` (Hatchbox provides `PORT`), env vars `HOUSEHOLD`, `GOOGLE_TOKEN`, `DASHBOARD_KEY`; HTTPS via Hatchbox's Caddy, which also makes Android install/fullscreen and the wake lock work.
+
 Run: `bundle exec puma -C config/puma.rb` (`PORT`/`HOST` env, default 0.0.0.0:8080). Dev with code reloading: `bin/dev`.
 
 ## Status

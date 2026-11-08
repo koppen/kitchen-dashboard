@@ -10,7 +10,7 @@ RSpec.describe KitchenDashboard::Sources::Events do
       File.write(path, JSON.generate(client_id: "cid", client_secret: "secret", refresh_token: "refresh"))
     end
   end
-  let(:settings) { double(google_token_file: token_file) }
+  let(:settings) { double(google_token_file: token_file, google_token: nil) }
 
   before do
     stub_const("KitchenDashboard::Config::PEOPLE", {
@@ -69,6 +69,11 @@ RSpec.describe KitchenDashboard::Sources::Events do
     expect(summary).to contain_exactly("Dinner: JM", "Trip [all-day]: J", "Kids: J")
     expect(events.find { it[:title] == "Dinner" }).to include(start: at(19), end: at(21), location: "")
     expect(events.first[:who].first).to eq(initial: "J", color: "#7FA4FF")
+  end
+
+  it "takes the token from the GOOGLE_TOKEN setting instead of the file when given" do
+    allow(settings).to receive_messages(google_token: File.read(token_file), google_token_file: "/nonexistent")
+    expect(source.call.size).to eq(3)
   end
 
   it "caches the token and the events" do

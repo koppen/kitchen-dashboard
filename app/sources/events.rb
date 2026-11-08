@@ -83,7 +83,7 @@ module KitchenDashboard
       # Access tokens are valid for an hour.
       def token
         cache.fetch(:google_token, 50 * 60) do
-          creds = JSON.parse(File.read(settings.google_token_file))
+          creds = JSON.parse(settings.google_token || File.read(settings.google_token_file))
           http.post_form(TOKEN_URL, client_id: creds["client_id"], client_secret: creds["client_secret"],
             refresh_token: creds["refresh_token"], grant_type: "refresh_token")["access_token"]
         end
