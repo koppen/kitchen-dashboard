@@ -1,0 +1,5 @@
+<div class="ev<%= " card" if style %><%= " tall" if tall %><%= " now" if e.now %><%= " tentative" if e.tentative %>"<% if style %> style="<%= style %>"<% end %>>
+  <div class="when"><% if e.time %><div class="t1"><%= e.time %></div><% end %><div class="t2"><%= e.until %></div></div>
+  <div class="txt"><div class="t"><%= e.title %></div><% if e.sub %><div class="s"><%= e.sub %></div><% end %></div>
+  <div class="avs"><% e.who.each do |p| %><%= avatar(p) %><% end %></div>
+</div>

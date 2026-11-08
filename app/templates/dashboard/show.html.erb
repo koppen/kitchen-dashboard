@@ -29,15 +29,22 @@
   <% end %>
 
   <div class="agenda" style="height:<%= rem(agenda.height) %>">
-    <% agenda.items.each do |e| %>
-      <% if e.day? %>
-        <div class="day"><%= e.label %></div>
-      <% else %>
-        <div class="ev<%= " now" if e.now %><%= " tentative" if e.tentative %>">
-          <div class="when"><% if e.time %><div class="t1"><%= e.time %></div><% end %><div class="t2"><%= e.until %></div></div>
-          <div class="txt"><div class="t"><%= e.title %></div><% if e.sub %><div class="s"><%= e.sub %></div><% end %></div>
-          <div class="avs"><% e.who.each do |p| %><%= avatar(p) %><% end %></div>
+    <% agenda.items.each do |item| %>
+      <% if item.block? %>
+        <div class="block" style="grid-template-columns:repeat(<%= item.columns %>, minmax(0, 1fr)); grid-template-rows:<%= item.heights.map { rem(it) }.join(" ") %>">
+          <% item.cells.each do |c| %>
+            <% area = "grid-area:#{c.row + 1} / #{c.lane + 1} / span #{c.rows} / span #{c.lanes}" %>
+            <% if c.item.day? %>
+              <div class="day" style="<%= area %>"><%= c.item.label %></div>
+            <% else %>
+              <%= render("event", e: c.item, style: area, tall: c.rows > 1) %>
+            <% end %>
+          <% end %>
         </div>
+      <% elsif item.day? %>
+        <div class="day"><%= item.label %></div>
+      <% else %>
+        <%= render("event", e: item, style: nil, tall: false) %>
       <% end %>
     <% end %>
     <% if agenda.more.positive? %><div class="more">+ <%= agenda.more %> flere</div><% end %>

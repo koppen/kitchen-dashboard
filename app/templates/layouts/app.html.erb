@@ -64,9 +64,9 @@
 
   /* events list: fixed-height rows (sizes mirrored in app/display/agenda.rb) */
   .agenda { flex: none; display: flex; flex-direction: column; gap: .6rem; overflow: hidden; }
-  .ev { box-sizing: border-box; height: 5.2rem; flex: none; display: flex; align-items: center; gap: 1.2rem; padding: 0 1rem;
+  .ev { box-sizing: border-box; height: 5.2rem; flex: none; display: flex; align-items: center; gap: 1rem; padding: 0 1rem;
         border-radius: 1.1rem; background: #232933; color: #E8EAEE; }
-  .ev .when { width: 5.6rem; flex: none; }
+  .ev .when { width: 6.8rem; flex: none; white-space: nowrap; }
   .ev .t1 { font-size: 2rem; font-weight: 700; line-height: 1.1; }
   .ev .t2 { font-size: 1.2rem; line-height: 1.3; color: #9AA3B2; }
   .ev .txt { flex: 1; min-width: 0; }
@@ -76,6 +76,16 @@
   .ev .avs { display: flex; flex: none; padding-left: .5rem; }
   .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
   .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .t2, .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
+  /* overlapping events side by side: a grid of rows and lanes (app/display/agenda.rb); cards stack time, title, location */
+  .block { flex: none; display: grid; gap: .6rem; }
+  .ev.card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; gap: 0 .6rem;
+             height: auto; min-width: 0; padding: .6rem 1rem; overflow: hidden; }
+  .ev.card .when { width: auto; display: flex; align-items: baseline; gap: .6rem; overflow: hidden; }
+  .ev.card .t1 { font-size: 1.6rem; }
+  .ev.card .avs { grid-area: 1 / 2; margin: -.3rem 0 -.7rem; } /* keep the first line short so the title fits one row */
+  .ev.card .txt { grid-column: 1 / -1; }
+  .ev.card:not(.tall) .s { display: none; } /* one row high: time and title only */
+  .ev.card.tall .t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .day { height: 2rem; flex: none; display: flex; align-items: flex-end; gap: .8rem; font-size: 1.1rem; font-weight: 700;
          letter-spacing: .12em; color: #9AA3B2; }
   .day::after { content: ""; flex: 1; border-top: .1rem dashed #5A6475; margin-bottom: .45rem; }
