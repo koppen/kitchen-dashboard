@@ -8,7 +8,7 @@ module KitchenDashboard
     # Open-Meteo hourly precipitation is the sum over the *preceding* hour, so rain during the
     # hour starting at time[i] is precipitation[i + 1]. Times are local to the forecast location.
     class Weather
-      RAIN = {mm: 0.2, hours: 4}                               # rain of at least 0.2 mm/h in the next 4 h
+      RAIN = {mm: 0.2, hours: 10}                              # rain of at least 0.2 mm/h this hour or the next 9
       UV_LIMIT = 3                                             # sunscreen at UV index >= 3
       SAIL = {min_wind: 3, max_wind: 9, max_gust: 12, hours: 3} # m/s, next 3 daylight hours, dry
 

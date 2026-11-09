@@ -33,6 +33,15 @@ RSpec.describe KitchenDashboard::Display::Weather do
     expect(weather.alerts.map(&:kind)).to eq([:rain, :sun])
   end
 
+  it "flags rain up to 9 hours after the current one" do
+    precip = forecast["hourly"]["precipitation"].fill(0)
+    precip[forecast["hourly"]["time"].index("2026-06-10T19:00")] = 0.5 # 18–19
+    expect(weather.alerts.first.to_h).to eq(kind: :rain, title: "Regn fra 18:00", sub: "0,5 mm til 19:00")
+
+    precip.fill(0)[forecast["hourly"]["time"].index("2026-06-10T20:00")] = 0.5 # 19–20
+    expect(described_class.new(forecast).alerts.map(&:kind)).not_to include(:rain)
+  end
+
   it "shows nothing when nothing is worth flagging" do
     forecast["hourly"]["precipitation"].fill(0)
     forecast["hourly"]["uv_index"].fill(0)
