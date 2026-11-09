@@ -11,6 +11,8 @@ module KitchenDashboard
           prices_source: "sources.prices"
         ]
 
+        expose :theme, layout: true, decorate: false
+
         expose :weather do
           forecast = load(weather_source)
           Display::Weather.new(forecast) if forecast

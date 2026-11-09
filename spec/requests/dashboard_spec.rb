@@ -37,6 +37,20 @@ RSpec.describe "Dashboard", type: :request do
     expect(last_response.body).to include("STRØMPRIS")
   end
 
+  it "switches to the light theme with ?theme=light and remembers it" do
+    get "/"
+    expect(last_response.body).to include('data-theme="dark"')
+
+    get "/?theme=light"
+    expect(last_response.body).to include('data-theme="light"')
+    get "/"
+    expect(last_response.body).to include('data-theme="light"')
+
+    get "/?theme=dark"
+    get "/"
+    expect(last_response.body).to include('data-theme="dark"')
+  end
+
   it "includes the boot id so open pages reload after a restart" do
     get "/"
     expect(last_response.body).to include(%(<meta name="boot-id" content="#{KitchenDashboard::App::BOOT_ID}">))

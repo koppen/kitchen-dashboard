@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="da">
+<html lang="da" data-theme="<%= theme %>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,7 +7,7 @@
 <!-- Installable without browser UI: fullscreen on Android, standalone on iOS ("Add to Home Screen") -->
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="boot-id" content="<%= boot_id %>">
-<meta name="theme-color" content="#12151A">
+<meta name="theme-color" content="<%= theme == "light" ? "#F3F4F6" : "#12151A" %>">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,6 +16,17 @@
 <link rel="icon" href="/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+  /* colours: dark by default, light with ?theme=light (remembered in a cookie; ?theme=dark switches back) */
+  :root {
+    --bg: #12151A; --fg: #E8EAEE; --muted: #9AA3B2; --soft: #B9C0CC; --card: #232933; --rule: #5A6475;
+    --bar: #4A5466; --bar-now: #8A94A6; --dim: #7A8394; --now-muted: #3B4250; --good: #5ED1B1; --sun: #FFD166;
+    --rain: #8FB4FF; --stale: #F2A07B; --rain-bg: #1D2B47; --sail-bg: #14332C; --sun-bg: #3A3115;
+  }
+  :root[data-theme="light"] {
+    --bg: #F3F4F6; --fg: #15181D; --muted: #5D6676; --soft: #4A5363; --card: #E2E5EA; --rule: #A9B0BC;
+    --bar: #B8BFCA; --bar-now: #6C7588; --dim: #7F8897; --now-muted: #C2C8D2; --good: #1C9A7B; --sun: #C88900;
+    --rain: #2E6BDB; --stale: #C4521B; --rain-bg: #DCE6FB; --sail-bg: #D4F0E8; --sun-bg: #F8ECC6;
+  }
   /* Everything is in rem. The layout is 80 rem tall and at least 48 rem wide, scaled to fit the screen
      (1rem = 10px at 480x800). On screens wider than 3:5 it fills the width; the calendar column takes the extra.
      Heights that decide how many events fit are mirrored in app/display/layout.rb and agenda.rb.
@@ -25,57 +36,57 @@
   body { margin: 0; height: 100vh; box-sizing: border-box; display: flex;
          padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); align-items: center; justify-content: center; overflow: hidden; cursor: none;
          overscroll-behavior: none; -webkit-user-select: none; user-select: none;
-         background: #12151A; color: #E8EAEE; font-family: 'Space Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+         background: var(--bg); color: var(--fg); font-family: 'Space Grotesk', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   #app { position: relative; box-sizing: border-box; flex: none; width: 100%; height: 80rem; padding: 1.4rem;
          display: flex; flex-direction: column; gap: 1rem; }
 
   .wx { display: flex; gap: 1.6rem; align-items: center; height: 8rem; flex: none; }
   .temp { font-size: 8.8rem; line-height: .9; font-weight: 700; letter-spacing: -.045em; }
   .cond { font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
-  .feel { font-size: 1.5rem; color: #9AA3B2; margin-top: .2rem; }
+  .feel { font-size: 1.5rem; color: var(--muted); margin-top: .2rem; }
   /* next hours: as many columns as fit, the rest wrap onto a hidden second line */
   .hours { flex: 1; min-width: 0; height: 8rem; display: flex; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; }
-  .hour { width: 4.2rem; height: 8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; color: #B9C0CC; }
+  .hour { width: 4.2rem; height: 8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; color: var(--soft); }
   .hour svg { width: 2.8rem; height: 2.8rem; }
-  .hour .h { font-size: 1.2rem; color: #9AA3B2; }
-  .hour .t { font-size: 1.7rem; font-weight: 700; color: #E8EAEE; }
-  .hour.clear_day, .hour.partly_day { color: #FFD166; }
-  .hour.rainy, .hour.snowy, .hour.thunder { color: #8FB4FF; }
+  .hour .h { font-size: 1.2rem; color: var(--muted); }
+  .hour .t { font-size: 1.7rem; font-weight: 700; color: var(--fg); }
+  .hour.clear_day, .hour.partly_day { color: var(--sun); }
+  .hour.rainy, .hour.snowy, .hour.thunder { color: var(--rain); }
   .alerts { display: flex; gap: .6rem; height: 4.4rem; flex: none; }
   .alert { flex: 1 1 0; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: .7rem; border-radius: 1.2rem; padding: 0 .9rem; }
   .alert svg { width: 2.2rem; height: 2.2rem; flex: none; }
   .alerts.crowded svg { display: none; } /* three tiles: no room for icons, the colours tell them apart */
   .alert .txt { min-width: 0; }
   .alert .t, .alert .s { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .alert .t { font-size: 1.5rem; font-weight: 700; line-height: 1.15; color: #E8EAEE; }
-  .alert .s { font-size: 1.15rem; line-height: 1.2; color: #B9C0CC; }
-  .rain { background: #1D2B47; color: #8FB4FF; }
-  .sail { background: #14332C; color: #5ED1B1; }
-  .sun  { background: #3A3115; color: #FFD166; }
+  .alert .t { font-size: 1.5rem; font-weight: 700; line-height: 1.15; color: var(--fg); }
+  .alert .s { font-size: 1.15rem; line-height: 1.2; color: var(--soft); }
+  .rain { background: var(--rain-bg); color: var(--rain); }
+  .sail { background: var(--sail-bg); color: var(--good); }
+  .sun  { background: var(--sun-bg); color: var(--sun); }
 
   .av { box-sizing: border-box; width: 2.8rem; height: 2.8rem; flex: none; border-radius: 50%; display: flex; align-items: center;
         justify-content: center; font-size: 1.4rem; font-weight: 700; letter-spacing: -.04em; color: #101318; }
 
   .allday { display: flex; gap: .8rem; align-items: center; flex: none; }
-  .allday .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; width: 4.6rem; line-height: 1.1; color: #9AA3B2; }
-  .chip { flex: 1; min-width: 0; box-sizing: border-box; height: 3.6rem; background: #232933; border-radius: 1rem; padding: 0 .8rem;
+  .allday .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; width: 4.6rem; line-height: 1.1; color: var(--muted); }
+  .chip { flex: 1; min-width: 0; box-sizing: border-box; height: 3.6rem; background: var(--card); border-radius: 1rem; padding: 0 .8rem;
           display: flex; align-items: center; gap: .8rem; }
   .chip b { font-size: 1.6rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* events list: fixed-height rows (sizes mirrored in app/display/agenda.rb) */
   .agenda { flex: none; display: flex; flex-direction: column; gap: .6rem; overflow: hidden; }
   .ev { box-sizing: border-box; height: 5.2rem; flex: none; display: flex; align-items: center; gap: 1rem; padding: 0 1rem;
-        border-radius: 1.1rem; background: #232933; color: #E8EAEE; }
+        border-radius: 1.1rem; background: var(--card); color: var(--fg); }
   .ev .when { width: 6.8rem; flex: none; white-space: nowrap; }
   .ev .t1 { font-size: 2rem; font-weight: 700; line-height: 1.1; }
-  .ev .t2 { font-size: 1.2rem; line-height: 1.3; color: #9AA3B2; }
+  .ev .t2 { font-size: 1.2rem; line-height: 1.3; color: var(--muted); }
   .ev .txt { flex: 1; min-width: 0; }
   .ev .t, .ev .s { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ev .t { font-size: 1.9rem; font-weight: 700; line-height: 1.15; }
-  .ev .s { font-size: 1.3rem; line-height: 1.3; color: #9AA3B2; }
+  .ev .s { font-size: 1.3rem; line-height: 1.3; color: var(--muted); }
   .ev .avs { display: flex; flex: none; padding-left: .5rem; }
-  .ev .av { border: .25rem solid #232933; margin-left: -.5rem; }
-  .ev.now { background: #E8EAEE; color: #12151A; } .ev.now .t2, .ev.now .s { color: #3B4250; } .ev.now .av { border-color: #E8EAEE; }
+  .ev .av { border: .25rem solid var(--card); margin-left: -.5rem; }
+  .ev.now { background: var(--fg); color: var(--bg); } .ev.now .t2, .ev.now .s { color: var(--now-muted); } .ev.now .av { border-color: var(--fg); }
   /* overlapping events side by side: a grid of rows and lanes (app/display/agenda.rb); cards stack time, title, location */
   .block { flex: none; display: grid; gap: .6rem; }
   .ev.card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; gap: 0 .6rem;
@@ -87,37 +98,37 @@
   .ev.card:not(.tall) .s { display: none; } /* one row high: time and title only */
   .ev.card.tall .t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .day { height: 2rem; flex: none; display: flex; align-items: flex-end; gap: .8rem; font-size: 1.1rem; font-weight: 700;
-         letter-spacing: .12em; color: #9AA3B2; }
-  .day::after { content: ""; flex: 1; border-top: .1rem dashed #5A6475; margin-bottom: .45rem; }
-  .more, .empty { height: 2rem; flex: none; display: flex; align-items: center; padding-left: 1rem; font-size: 1.4rem; color: #9AA3B2; }
+         letter-spacing: .12em; color: var(--muted); }
+  .day::after { content: ""; flex: 1; border-top: .1rem dashed var(--rule); margin-bottom: .45rem; }
+  .more, .empty { height: 2rem; flex: none; display: flex; align-items: center; padding-left: 1rem; font-size: 1.4rem; color: var(--muted); }
 
   /* tentative ("?" title): outline instead of fill, dimmed */
-  .ev.tentative, .chip.tentative { background: none; border: .2rem dashed #4A5466; color: #9AA3B2; }
-  .ev.tentative .t2 { color: #7A8394; }
-  .ev.tentative .av { border-color: #12151A; }
+  .ev.tentative, .chip.tentative { background: none; border: .2rem dashed var(--bar); color: var(--muted); }
+  .ev.tentative .t2 { color: var(--dim); }
+  .ev.tentative .av { border-color: var(--bg); }
   .ev.tentative .av, .chip.tentative .av { opacity: .55; }
-  .ev.tentative.now { border-color: #9AA3B2; color: #E8EAEE; } .ev.tentative.now .s { color: #9AA3B2; }
+  .ev.tentative.now { border-color: var(--muted); color: var(--fg); } .ev.tentative.now .s { color: var(--muted); }
 
   /* price chart along the bottom; the line labels ("2,00 kr", "1,00 kr") sit in the left gutter */
   .el { height: 14rem; flex: none; display: flex; flex-direction: column; gap: .5rem; }
   .elh { height: 2.4rem; margin-bottom: .4rem; display: flex; justify-content: space-between; align-items: baseline; }
-  .elh .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; color: #9AA3B2; }
-  .elh .now { font-size: 1.4rem; color: #9AA3B2; } .elh .now b { font-size: 2.4rem; font-weight: 700; color: #E8EAEE; }
+  .elh .lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; color: var(--muted); }
+  .elh .now { font-size: 1.4rem; color: var(--muted); } .elh .now b { font-size: 2.4rem; font-weight: 700; color: var(--fg); }
   .chart { position: relative; flex: 1; min-height: 0; margin-left: 5.4rem; display: flex; align-items: flex-end; gap: .3rem;
-           border-bottom: .2rem solid #5A6475; }
+           border-bottom: .2rem solid var(--rule); }
   .slot { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
-  .bar { width: 100%; background: #4A5466; border-radius: .4rem .4rem 0 0; }
-  .bar.now { background: #8A94A6; } .bar.cheap { background: #5ED1B1; }
+  .bar { width: 100%; background: var(--bar); border-radius: .4rem .4rem 0 0; }
+  .bar.now { background: var(--bar-now); } .bar.cheap { background: var(--good); }
   .bar.clipped { border-radius: 0; } /* above the top of the scale: cut off */
-  .line { position: absolute; left: 0; right: 0; border-top: .15rem solid #5A6475; z-index: 1; }
-  .line.good { border-color: #5ED1B1; }
+  .line { position: absolute; left: 0; right: 0; border-top: .15rem solid var(--rule); z-index: 1; }
+  .line.good { border-color: var(--good); }
   .line span { position: absolute; left: -5.4rem; width: 4.8rem; white-space: nowrap; transform: translateY(-50%); text-align: right;
-               font-size: 1.2rem; line-height: 1; color: #9AA3B2; }
-  .line.good span { color: #5ED1B1; }
-  .ticks { height: 1.4rem; margin-left: 5.4rem; display: flex; gap: .3rem; font-size: 1.2rem; line-height: 1.4rem; color: #9AA3B2; }
+               font-size: 1.2rem; line-height: 1; color: var(--muted); }
+  .line.good span { color: var(--good); }
+  .ticks { height: 1.4rem; margin-left: 5.4rem; display: flex; gap: .3rem; font-size: 1.2rem; line-height: 1.4rem; color: var(--muted); }
   .ticks div { flex: 1; min-width: 0; white-space: nowrap; overflow: visible; }
 
-  .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: #F2A07B; }
+  .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: var(--stale); }
 </style>
 </head>
 <body>
