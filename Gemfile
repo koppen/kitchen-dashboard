@@ -8,6 +8,7 @@ gem "hanami-router", "~> 3.0.0"
 gem "hanami-view", "~> 3.0.0"
 
 gem "dry-types", "~> 1.7"
+gem "ferrum"
 gem "puma", ">= 7.1"
 gem "rake"
 

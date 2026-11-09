@@ -51,6 +51,17 @@ RSpec.describe "Dashboard", type: :request do
     expect(last_response.body).to include('data-theme="dark"')
   end
 
+  it "renders the page as a PNG with ?format=png" do
+    screenshot = double
+    expect(screenshot).to receive(:call).with(a_string_including('data-theme="light"', "STRØMPRIS")).and_return("PNG")
+    container.stub("screenshot", screenshot)
+
+    get "/?theme=light&format=png"
+    expect(last_response).to be_ok
+    expect(last_response.content_type).to eq("image/png")
+    expect(last_response.body).to eq("PNG")
+  end
+
   it "includes the boot id so open pages reload after a restart" do
     get "/"
     expect(last_response.body).to include(%(<meta name="boot-id" content="#{KitchenDashboard::App::BOOT_ID}">))
