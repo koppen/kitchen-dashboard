@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Replaces Hatchbox's Hanami build steps (db migrate, assets): no database or assets here.
+set -e
+bundle install

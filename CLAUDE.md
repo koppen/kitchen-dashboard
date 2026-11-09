@@ -46,7 +46,7 @@ Google: needs `google-token.json` (or `GOOGLE_TOKEN_FILE`), made once with `bin/
 
 Env-only configuration (for hosts without files): `HOUSEHOLD` = the contents of a `household.rb` (eval'd at boot instead of the file), `GOOGLE_TOKEN` = the contents of `google-token.json`. `DASHBOARD_KEY` makes the dashboard private (`lib/kitchen_dashboard/key_gate.rb`): open `/?key=<key>` once per browser to get a 10-year cookie; without it every page and `/api/*` is a 404 (static files stay public). Set it whenever the dashboard is reachable from the internet.
 
-Deploy: Hatchbox (auto-deploys `main`; Ruby from `.ruby-version`; build script just `bundle install`, skipping Hatchbox's Hanami db/assets steps). The web process is the "server" one Hatchbox adds itself (puma on `127.0.0.1:$PORT` with systemd socket activation); a second web process would clash over the port. Env vars `HOUSEHOLD`, `GOOGLE_TOKEN`, `DASHBOARD_KEY` (the key is also in the gitignored `dashboard-key.txt`); HTTPS via Hatchbox's Caddy, which also makes Android install/fullscreen and the wake lock work.
+Deploy: Hatchbox (auto-deploys `main`; Ruby from `.ruby-version`; build script `.hatchbox/build` just runs `bundle install`, skipping Hatchbox's Hanami db/assets steps). The web process is the "server" one Hatchbox adds itself (puma on `127.0.0.1:$PORT` with systemd socket activation); a second web process would clash over the port. Env vars `HOUSEHOLD`, `GOOGLE_TOKEN`, `DASHBOARD_KEY` (the key is also in the gitignored `dashboard-key.txt`); HTTPS via Hatchbox's Caddy, which also makes Android install/fullscreen and the wake lock work.
 
 Run: `bundle exec puma -C config/puma.rb` (`PORT`/`HOST` env, default 0.0.0.0:8080). Dev with code reloading: `bin/dev`.
 
