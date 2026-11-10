@@ -70,7 +70,7 @@ module KitchenDashboard
       end
 
       def build_alerts(c, h, i0)
-        at = ->(i) { h["time"][i][11, 5] }
+        hour = ->(i) { h["time"][i][11, 2].to_i } # the forecast is per hour, so no minutes ("fra 9")
         precip = ->(i) { h["precipitation"][i].to_f }
         alerts = []
 
@@ -82,7 +82,7 @@ module KitchenDashboard
             mm += precip.(i0 + 1 + e)
             e += 1
           end
-          alerts << Alert.new(:rain, m.zero? ? "Regn nu" : "Regn fra #{at.(i0 + m)}", "#{decimal(mm, 1)} mm til #{at.(i0 + e)}")
+          alerts << Alert.new(:rain, m.zero? ? "Regn nu" : "Regn fra #{hour.(i0 + m)}", "#{decimal(mm, 1)} mm til #{hour.(i0 + e)}")
         end
 
         uv = ->(i) { h["uv_index"][i].to_f }
@@ -93,7 +93,7 @@ module KitchenDashboard
             peak = [peak, uv.(i0 + e)].max
             e += 1
           end
-          sub = k.zero? ? "UV #{peak.round} til #{at.(i0 + e)}" : "UV #{peak.round} fra #{at.(i0 + k)}"
+          sub = k.zero? ? "UV #{peak.round} til #{hour.(i0 + e)}" : "UV #{peak.round} fra #{hour.(i0 + k)}"
           alerts << Alert.new(:sun, "Solcreme", sub)
         end
 

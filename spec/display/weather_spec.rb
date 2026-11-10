@@ -22,8 +22,8 @@ RSpec.describe KitchenDashboard::Display::Weather do
 
   it "flags rain, sunscreen and sailing" do
     expect(weather.alerts.map(&:to_h)).to eq([
-      {kind: :rain, title: "Regn fra 11:00", sub: "1,8 mm til 13:00"},
-      {kind: :sun, title: "Solcreme", sub: "UV 5 til 11:00"},
+      {kind: :rain, title: "Regn fra 11", sub: "1,8 mm til 13"},
+      {kind: :sun, title: "Solcreme", sub: "UV 5 til 11"},
       {kind: :sail, title: "Godt sejlvejr", sub: "NV 5 (8) m/s"} # only 0.9 mm in the next 3 h
     ])
   end
@@ -36,7 +36,7 @@ RSpec.describe KitchenDashboard::Display::Weather do
   it "flags rain up to 9 hours after the current one" do
     precip = forecast["hourly"]["precipitation"].fill(0)
     precip[forecast["hourly"]["time"].index("2026-06-10T19:00")] = 0.5 # 18–19
-    expect(weather.alerts.first.to_h).to eq(kind: :rain, title: "Regn fra 18:00", sub: "0,5 mm til 19:00")
+    expect(weather.alerts.first.to_h).to eq(kind: :rain, title: "Regn fra 18", sub: "0,5 mm til 19")
 
     precip.fill(0)[forecast["hourly"]["time"].index("2026-06-10T20:00")] = 0.5 # 19–20
     expect(described_class.new(forecast).alerts.map(&:kind)).not_to include(:rain)
