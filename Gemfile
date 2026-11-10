@@ -9,6 +9,7 @@ gem "hanami-view", "~> 3.0.0"
 
 gem "dry-types", "~> 1.7"
 gem "ferrum"
+gem "chunky_png"
 gem "puma", ">= 7.1"
 gem "rake"
 

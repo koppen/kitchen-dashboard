@@ -53,13 +53,22 @@ RSpec.describe "Dashboard", type: :request do
 
   it "renders the page as a PNG with ?format=png" do
     screenshot = double
-    expect(screenshot).to receive(:call).with(a_string_including('data-theme="light"', "STRØMPRIS")).and_return("PNG")
+    expect(screenshot).to receive(:call).with(a_string_including('data-theme="light"', "STRØMPRIS"), one_bit: false).and_return("PNG")
     container.stub("screenshot", screenshot)
 
     get "/?theme=light&format=png"
     expect(last_response).to be_ok
     expect(last_response.content_type).to eq("image/png")
     expect(last_response.body).to eq("PNG")
+  end
+
+  it "renders a 1-bit PNG in the e-ink theme" do
+    screenshot = double
+    expect(screenshot).to receive(:call).with(a_string_including('data-theme="eink"'), one_bit: true).and_return("PNG")
+    container.stub("screenshot", screenshot)
+
+    get "/?theme=eink&format=png"
+    expect(last_response).to be_ok
   end
 
   it "includes the boot id so open pages reload after a restart" do

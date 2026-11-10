@@ -7,7 +7,7 @@
 <!-- Installable without browser UI: fullscreen on Android, standalone on iOS ("Add to Home Screen") -->
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="boot-id" content="<%= boot_id %>">
-<meta name="theme-color" content="<%= theme == "light" ? "#F3F4F6" : "#12151A" %>">
+<meta name="theme-color" content="<%= {"light" => "#F3F4F6", "eink" => "#FFFFFF"}.fetch(theme, "#12151A") %>">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,7 +16,7 @@
 <link rel="icon" href="/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* colours: dark by default, light with ?theme=light (remembered in a cookie; ?theme=dark switches back) */
+  /* colours: dark by default, ?theme=light or ?theme=eink (remembered in a cookie; ?theme=dark switches back) */
   :root {
     --bg: #12151A; --fg: #E8EAEE; --muted: #9AA3B2; --soft: #B9C0CC; --card: #232933; --rule: #5A6475;
     --bar: #4A5466; --bar-now: #8A94A6; --dim: #7A8394; --now-muted: #3B4250; --good: #5ED1B1; --sun: #FFD166;
@@ -129,6 +129,27 @@
   .ticks div { flex: 1; min-width: 0; white-space: nowrap; overflow: visible; }
 
   .stale { position: absolute; right: 1.4rem; bottom: .3rem; font-size: 1.1rem; color: var(--stale); }
+
+  /* e-ink (?theme=eink): black and white only. Cards and tiles are outlined, the current event is solid black,
+     bars are outlined (cheap: solid, current hour: hatched), the 1 kr line is solid and the 2 kr line dashed.
+     Antialiased edges stay grey in the browser; ?format=png thresholds them away (a 1-bit image). */
+  :root[data-theme="eink"] {
+    --bg: #FFF; --fg: #000; --muted: #000; --soft: #000; --card: #FFF; --rule: #000; --bar: #FFF; --bar-now: #FFF;
+    --dim: #000; --now-muted: #FFF; --good: #000; --sun: #000; --rain: #000; --stale: #000;
+    --rain-bg: #FFF; --sail-bg: #FFF; --sun-bg: #FFF;
+  }
+  [data-theme="eink"] .ev, [data-theme="eink"] .chip, [data-theme="eink"] .alert { border: .2rem solid #000; }
+  [data-theme="eink"] .ev.tentative, [data-theme="eink"] .chip.tentative { border-style: dashed; }
+  [data-theme="eink"] .av { background: #FFF !important; border: .2rem solid #000; color: #000; } /* !important: colour is inline */
+  [data-theme="eink"] .ev .av { border-width: .2rem; }
+  [data-theme="eink"] .ev.now .av { border-color: #FFF; }
+  [data-theme="eink"] .ev.tentative .av, [data-theme="eink"] .chip.tentative .av { opacity: 1; }
+  [data-theme="eink"] .bar { box-sizing: border-box; border: .2rem solid #000; border-bottom: 0; }
+  [data-theme="eink"] .bar.cheap { background: #000; }
+  [data-theme="eink"] .bar.now { background: repeating-linear-gradient(45deg, #000 0 .25rem, #FFF .25rem .6rem); }
+  [data-theme="eink"] .line { border-top-style: dashed; }
+  [data-theme="eink"] .line.good { border-top: .25rem solid #000; }
+  [data-theme="eink"] .line.good span { font-weight: 700; }
 </style>
 </head>
 <body>
