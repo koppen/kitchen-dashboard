@@ -6,8 +6,9 @@ require "time"
 module KitchenDashboard
   module Sources
     # Events from today and the next DAYS_AHEAD days from Google Calendar, read as the signed-in user (OAuth refresh token from
-    # bin/google-auth). The same event seen on several calendars is merged; people are taken from
-    # the calendar and the attendee list.
+    # bin/google-auth). Events with the same title, start and end are taken to be one event and merged: the same
+    # event seen on several calendars, but also separate copies (each parent putting the same appointment in their
+    # own calendar). People are taken from the calendar and the attendee list.
     class Events
       include Deps["http", "cache", "settings"]
 
@@ -41,17 +42,19 @@ module KitchenDashboard
               (a["responseStatus"] == "declined") ? no << p : yes << p
             end
 
+            title = e["summary"] || "(uden titel)"
             start = e["start"]["dateTime"] || e["start"]["date"]
-            key = "#{e["iCalUID"] || e["id"]}|#{start}"
+            stop = e["end"]["dateTime"] || e["end"]["date"]
+            key = [title.strip, start, stop]
             if (prev = seen[key])
               prev[:yes].merge(yes)
               prev[:no].merge(no)
             else
               seen[key] = {
-                title: e["summary"] || "(uden titel)",
+                title:,
                 location: e["location"] || "",
                 start:,
-                end: e["end"]["dateTime"] || e["end"]["date"],
+                end: stop,
                 all_day: e["start"].key?("date"),
                 yes:, no:
               }

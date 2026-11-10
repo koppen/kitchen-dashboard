@@ -71,6 +71,15 @@ RSpec.describe KitchenDashboard::Sources::Events do
     expect(events.first[:who].first).to eq(initial: "J", color: "#7FA4FF")
   end
 
+  it "merges separate events with the same title and time" do
+    swim = ->(id, title, to) { {"id" => id, "iCalUID" => id, "summary" => title, "start" => {"dateTime" => at(8)}, "end" => {"dateTime" => at(to)}} }
+    calendars["jakob@example.com"] << swim.("s1", "Swimming", 9)
+    calendars["mette@example.com"] << swim.("s2", "Swimming", 9) << swim.("s3", "Swimming", 10)
+
+    swims = source.call.select { it[:title] == "Swimming" }
+    expect(swims.map { [it[:end], it[:who].map { |w| w[:initial] }] }).to contain_exactly([at(9), %w[J M]], [at(10), %w[M]])
+  end
+
   it "takes the token from the GOOGLE_TOKEN setting instead of the file when given" do
     allow(settings).to receive_messages(google_token: File.read(token_file), google_token_file: "/nonexistent")
     expect(source.call.size).to eq(3)

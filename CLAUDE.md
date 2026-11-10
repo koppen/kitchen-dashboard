@@ -21,7 +21,7 @@ Hanami 3 app (Ruby 4, no DB, no assets). The page is rendered on the server; the
 
 - `config/household.rb`: household config (see below). `config/settings.rb`: `GOOGLE_TOKEN_FILE`.
 - `app/sources/`: data sources, each cached in `app/cache.rb` (in-memory, serves stale data on upstream failure). HTTP via `app/http.rb` (Net::HTTP).
-  - `events.rb`: Google Calendar (today + 14 days) as one family member's Google account (OAuth refresh token from `bin/google-auth`), `singleEvents=true`, merges the same event across calendars, handles declined/cancelled, maps calendars and attendee emails to people. Cached 5 min.
+  - `events.rb`: Google Calendar (today + 14 days) as one family member's Google account (OAuth refresh token from `bin/google-auth`), `singleEvents=true`, merges events with the same title, start and end (across calendars, and separate copies), handles declined/cancelled, maps calendars and attendee emails to people. Cached 5 min.
   - `weather.rb`: Open-Meteo passthrough using DMI's HARMONIE model (`models=dmi_seamless`); DMI has no UV index, so `uv_index` comes from a second request with Open-Meteo's default model. (DMI's own EDR API at opendataapi.dmi.dk needs no key but only has raw model fields: no weather code, apparent temperature or UV.) Cached 10 min.
   - `prices.rb`: what a kWh actually costs per hour: Energi Data Service `DayAheadPrices` (15-minute resolution since 2025-10-01; `Elspotprices` is discontinued) averaged to hours, + `MARKUP` + tariffs, × VAT. `t` is unix seconds. Cached 30 min.
   - `tariffs.rb`: per-kWh tariffs from EDS `DatahubPricelist` (grid company time-of-day tariff, Energinet transmission + system tariff, elafgift), selected by `TARIFFS`. Cached 24 h.
