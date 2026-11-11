@@ -13,6 +13,12 @@ RSpec.describe KitchenDashboard::Display::Weather do
   it "shows the next hours" do
     expect(weather.hours.size).to eq(12)
     expect(weather.hours.first.to_h).to eq(time: "10", icon: :cloudy, temp: "10°")
+    expect(weather.hours.map(&:time).first(3)).to eq(%w[10 12 14]) # 2 hours each
+  end
+
+  it "shows the worst weather of a slot's hours" do
+    forecast["hourly"]["weather_code"][forecast["hourly"]["time"].index("2026-06-10T11:00")] = 61
+    expect(weather.hours.first.icon).to eq(:rainy)
   end
 
   it "picks icons by weather code and daylight" do

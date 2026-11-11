@@ -12,7 +12,8 @@ module KitchenDashboard
       UV_LIMIT = 3                                             # sunscreen at UV index >= 3
       SAIL = {min_wind: 3, max_wind: 9, max_gust: 12, hours: 3} # m/s, next 3 daylight hours, dry
 
-      HOURS = 12 # rendered; as many as fit the width are visible
+      HOURS = 12     # forecast slots rendered; as many as fit the width are visible
+      HOUR_STEP = 2  # hours per slot, so 4 slots in portrait reach 8 hours ahead
 
       Alert = Data.define(:kind, :title, :sub)
       Hour = Data.define(:time, :icon, :temp)
@@ -61,11 +62,15 @@ module KitchenDashboard
 
       private
 
-      # the next full hours after the current one
+      # From the next full hour, HOUR_STEP hours per slot: the slot's first hour and temperature, and the icon for
+      # the worst weather in it (WMO codes grow with severity: clear, cloudy, fog, drizzle, rain, snow, showers, thunder).
       def build_hours(h, i0)
-        (i0 + 1..i0 + HOURS).filter_map do |i|
-          next unless h["time"][i]
-          Hour.new(h["time"][i][11, 2], self.class.icon(h["weather_code"][i], h["is_day"][i] == 1), "#{h["temperature_2m"][i].round}°")
+        (0...HOURS).filter_map do |n|
+          i = i0 + 1 + n * HOUR_STEP
+          next unless h["time"][i + HOUR_STEP - 1]
+
+          code = h["weather_code"][i, HOUR_STEP].max
+          Hour.new(h["time"][i][11, 2], self.class.icon(code, h["is_day"][i] == 1), "#{h["temperature_2m"][i].round}°")
         end
       end
 
