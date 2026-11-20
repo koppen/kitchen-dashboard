@@ -24,7 +24,8 @@ module Fixtures
         "uv_index" => arr.() { [i0, i0 + 1].include?(it) ? 5.2 : 0 },
         "wind_speed_10m" => arr.() { 5 }, "wind_gusts_10m" => arr.() { 8 },
         "is_day" => arr.() { 1 }, "weather_code" => arr.() { 3 }
-      }
+      },
+      "daily" => {"sunrise" => ["#{now.to_date}T07:58"], "sunset" => ["#{now.to_date}T16:05"]}
     }
   end
 

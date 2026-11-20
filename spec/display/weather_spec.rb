@@ -7,7 +7,7 @@ RSpec.describe KitchenDashboard::Display::Weather do
   let(:forecast) { Fixtures.forecast(now) }
 
   it "shows current conditions" do
-    expect([weather.temp, weather.condition, weather.feel]).to eq(["9°", "Overskyet", "Føles som 6° · NV 7 m/s"])
+    expect([weather.temp, weather.condition, weather.feel, weather.sunrise, weather.sunset]).to eq(["9°", "Overskyet", "Føles som 6° · NV 7 m/s", "07:58", "16:05"])
   end
 
   it "shows the next hours" do

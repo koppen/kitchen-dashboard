@@ -18,13 +18,15 @@ module KitchenDashboard
       Alert = Data.define(:kind, :title, :sub)
       Hour = Data.define(:time, :icon, :temp)
 
-      attr_reader :temp, :condition, :feel, :hours, :alerts
+      attr_reader :temp, :condition, :feel, :sunrise, :sunset, :hours, :alerts
 
       def initialize(forecast)
         c = forecast["current"]
         @temp = "#{c["temperature_2m"].round}°"
         @condition = self.class.condition(c["weather_code"])
         @feel = "Føles som #{c["apparent_temperature"].round}° · #{compass(c["wind_direction_10m"])} #{c["wind_speed_10m"].round} m/s"
+        d = forecast["daily"]
+        @sunrise, @sunset = d["sunrise"][0][11, 5], d["sunset"][0][11, 5] # today's
         h = forecast["hourly"]
         i0 = h["time"].index("#{c["time"][0, 13]}:00")
         @hours = i0 ? build_hours(h, i0) : []
