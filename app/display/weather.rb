@@ -75,7 +75,7 @@ module KitchenDashboard
       end
 
       def build_alerts(c, h, i0)
-        hour = ->(i) { h["time"][i][11, 2].to_i } # the forecast is per hour, so no minutes ("fra 9")
+        hour = ->(i) { "kl. #{h["time"][i][11, 2].to_i}" } # the forecast is per hour, so no minutes ("fra kl. 9")
         precip = ->(i) { h["precipitation"][i].to_f }
         alerts = []
 
