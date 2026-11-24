@@ -10,7 +10,7 @@ module KitchenDashboard
     class Weather
       RAIN = {mm: 0.2, hours: 10}                              # rain of at least 0.2 mm/h this hour or the next 9
       UV_LIMIT = 3                                             # sunscreen at UV index >= 3
-      SAIL = {min_wind: 3, max_wind: 9, max_gust: 12, hours: 3} # m/s, next 3 daylight hours, dry
+      SAIL = {min_wind: 3, max_wind: 9, max_gust: 12, min_temp: 5, hours: 3} # m/s, °, next 3 daylight hours, dry
 
       HOURS = 12     # forecast slots rendered; as many as fit the width are visible
       HOUR_STEP = 2  # hours per slot, so 4 slots in portrait reach 8 hours ahead
@@ -109,8 +109,10 @@ module KitchenDashboard
         gust = window.("wind_gusts_10m").max
         avg = wind.sum / wind.size
         wet = (1..SAIL[:hours]).sum { precip.(i0 + it) }
+        temp = window.("temperature_2m").min
         if window.("is_day").all?(1) && window.("weather_code").all? { it < 95 } &&
-            avg.between?(SAIL[:min_wind], SAIL[:max_wind]) && gust <= SAIL[:max_gust] && wet < 1
+            avg.between?(SAIL[:min_wind], SAIL[:max_wind]) && gust <= SAIL[:max_gust] && wet < 1 &&
+            temp >= SAIL[:min_temp]
           # wind (gusts), as DMI writes it
           alerts << Alert.new(:sail, "Godt sejlvejr", "#{compass(c["wind_direction_10m"])} #{avg.round} (#{gust.round}) m/s")
         end
